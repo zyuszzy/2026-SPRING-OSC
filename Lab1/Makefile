@@ -6,6 +6,10 @@ CFLAGS = -mcmodel=medany -ffreestanding -nostdlib -g -Wall
 QEMU ?= qemu-system-riscv64
 TARGET = kernel
 
+ifeq ($(PLATFORM), QEMU)
+    CFLAGS += -DUSE_QEMU
+endif
+
 build: clean
 	$(CC) $(CFLAGS) -c *.S *.c
 	$(LD) -T link.ld -o $(TARGET).elf *.o
