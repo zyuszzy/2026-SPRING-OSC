@@ -1,6 +1,6 @@
 #include "uart.h"
 
 void start_kernel() {
-    uart.puts("Kernel wow yaya!!\n");
+    uart_puts("Kernel wow yaya!!\n");
 
 }
