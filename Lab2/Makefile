@@ -7,7 +7,7 @@ QEMU ?= qemu-system-riscv64
 TARGET = bootloader
 
 ifeq ($(PLATFORM), QEMU)
-    CFLAGS += -DUSE_QEMU
+     CFLAGS += -DUSE_QEMU
 endif
 
 build: clean

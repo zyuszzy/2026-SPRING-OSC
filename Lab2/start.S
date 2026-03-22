@@ -1,6 +1,9 @@
 .section ".text.boot"
 .global _start
 _start:
+    mv s0, a0          // s0 = hartid
+    mv s1, a1          // s1 = dtb_ptr
+
     // Set up the stack pointer
     la sp, _end
     
@@ -14,5 +17,7 @@ bss_clear:
     addi t0, t0, 1
     j bss_clear
 
-bss_done:    
+bss_done:
+    mv a0, s0
+    mv a1, s1
     tail main

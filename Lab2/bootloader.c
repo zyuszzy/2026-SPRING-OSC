@@ -6,13 +6,83 @@
 
 #include "uart.h"
 
-int strcmp(const char *s1, const char *s2) {
-    while (*s1 && (*s1 == *s2)) {
+// Token for DTB structure Block
+#define FDT_BEGIN_NODE 0x00000001
+#define FDT_END_NODE   0x00000002
+#define FDT_PROP       0x00000003
+#define FDT_NOP        0x00000004
+#define FDT_END        0x00000009
+
+extern unsigned long UART_BASE;
+extern int UART_STRIDE;
+
+// 官方 FDT header
+struct fdt_header {
+    uint32_t magic;                 // 0xd00dfeed (Big-Endian)
+    uint32_t totalsize;             
+    uint32_t off_dt_struct;         
+    uint32_t off_dt_strings;        
+    uint32_t off_mem_rsvmap;        
+    uint32_t version;               
+    uint32_t last_comp_version;     
+    uint32_t boot_cpuid_phys;       
+    uint32_t size_dt_strings;       
+    uint32_t size_dt_struct;        
+};
+
+
+// ------------------------------------------------------------------ Fuctions ------------------------------------------------------------- 
+int strcmp(const char *s1, const char *s2){
+    while(*s1 && (*s1 == *s2)){
         s1++; s2++;
     }
     return *(unsigned char *)s1 - *(unsigned char *)s2;
 }
+int strncmp(const char *s1, const char *s2, int n){
+    while(n > 0 && *s1 && (*s1 == *s2)){
+        s1++;
+        s2++;
+        n--;
+    }
+    if(n == 0) 
+        return 0;
+    return *(unsigned char *)s1 - *(unsigned char *)s2;
+}
+int strlen(const char *s){
+    int len = 0;
+    while (*s++) 
+        len++;
+    return len;
+}
+/*static inline uint32_t bswap32(uint32_t x) {
+    return __builtin_bswap32(x);   
+}
+static inline uint64_t bswap64(uint64_t x) {
+    return __builtin_bswap64(x);    
+}*/
+static inline uint32_t bswap32(uint32_t x) {
+    return ((x & 0x000000ff) << 24) |
+           ((x & 0x0000ff00) << 8)  |
+           ((x & 0x00ff0000) >> 8)  |
+           ((x & 0xff000000) >> 24);
+}
+static inline uint64_t bswap64(uint64_t x) {
+    return ((x & 0x00000000000000ffULL) << 56) |
+           ((x & 0x000000000000ff00ULL) << 40) |
+           ((x & 0x0000000000ff0000ULL) << 24) |
+           ((x & 0x00000000ff000000ULL) << 8)  |
+           ((x & 0x000000ff00000000ULL) >> 8)  |
+           ((x & 0x0000ff0000000000ULL) >> 24) |
+           ((x & 0x00ff000000000000ULL) >> 40) |
+           ((x & 0xff00000000000000ULL) >> 56);
+}
+static inline const void* align_up(const void* ptr, size_t align) {
+    return (const void*)(((uintptr_t)ptr + align - 1) & ~(align - 1));      // 公式：(addr + 3) & ~3  (假設 align 為 4)
+}
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
+
+// ----------------------------------------------------------------- Exerciese 1 -----------------------------------------------------------
 // receive kernel through UART and load kernel
 void load_kernel_uart(){
     char* kernel_address = (char*)KERNEL_LOAD_ADDR;    // UART
@@ -39,7 +109,7 @@ void load_kernel_uart(){
     // 開始讀kernel
     for(int i=0 ; i<kernel_size ; i++)
         kernel_address[i] = uart_getc_raw();
-    uart_puts("Kernel loaded successfully! Jump to kernel");
+    uart_puts("Kernel loaded successfully! Jump to kernel ");
     if(KERNEL_LOAD_ADDR == 0x82000000UL)
         uart_puts("0x82000000 ...\n");
     else if(KERNEL_LOAD_ADDR == 0x20000000UL)
@@ -99,8 +169,187 @@ void shell(){
         }
     }
 }
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
-int main(){
-    shell();
+
+// ----------------------------------------------------------------- Exercise 2 ------------------------------------------------------------
+int name_match(const char *node_name, const char *current_path){
+    int i = 0;
+
+    while(node_name[i] != '\0' && node_name[i] != '@' && current_path[i] != '/' && current_path[i] != '\0'){
+        if(node_name[i] != current_path[i]) 
+            return 0;
+        i++;
+    }
+
+    if( (node_name[i] == '\0' || node_name[i] == '@') && (current_path[i] == '/' || current_path[i] == '\0') ){
+        return i;
+    }
     return 0;
+}
+
+int fdt_path_offset(const void* fdt, const char* path) {
+
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    const char* fdt_base = (const char*)fdt;
+    const char* p = fdt_base + bswap32(header->off_dt_struct);      // p目前為struture block開頭
+
+    // special case: root node
+    if (strcmp(path, "/") == 0) 
+        return (int)(p - fdt_base);
+
+    const char* current_path = path;
+    
+    // 跳過 root node 的 '/'
+    if(*current_path == '/')
+        current_path++;
+
+    int current_level = -1;     // 當前所在遍歷的 level
+    int skip_until_level = -1;  // 此條路不是要找的，要退回到的level
+
+    while(1){
+        uint32_t token = bswap32(*(uint32_t*)p);
+
+        // 現在 p 停在 token 前面
+        if(token == FDT_BEGIN_NODE){
+             const char* node_name = p + 4;
+             current_level++;
+
+             // root node，跳過比對
+             if(current_level == 0 && *node_name == '\0'){
+                p += 4;
+                p = (const char*)align_up(p + 1, 4);
+                continue;
+             }
+
+             // 開始比對
+             if(skip_until_level == -1 && *current_path != '\0'){
+                int len = name_match(node_name, current_path);
+                if(len > 0){
+                    current_path += len;
+                    if(*current_path == '/')
+                        current_path++;
+                    
+                    // path查找完 代表找到
+                    if(*current_path == '\0')
+                        return (int)(p - fdt_base);
+                }else{                                  // 此條不是要找的
+                    skip_until_level = current_level;
+                }
+             }
+
+             p += 4;
+             p = (const char*)align_up(p + strlen(node_name) + 1, 4);
+        }else if(token == FDT_END_NODE){
+            if(skip_until_level == current_level)
+                skip_until_level = -1;
+            current_level--;
+            p += 4;
+        }else if(token == FDT_PROP){
+            p += 4;
+            uint32_t prop_len = bswap32(*(uint32_t*)p);
+            p += 8;     // 跳過 prop_len 和 prop_name_offset
+            p = (const char*)align_up(p + prop_len, 4);
+        }else if(token == FDT_END){
+            break;
+        }else{
+            p += 4;
+        }
+    }
+    
+    return -1;
+}
+
+const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *lenp){
+
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    const char* fdt_base = (const char*)fdt;
+    const char* p = fdt_base + nodeoffset; 
+    const char* string_base = fdt_base + bswap32(header->off_dt_strings);
+
+    // 確認目前指標在BEGINNODE
+    if(bswap32(*(uint32_t*)p) != FDT_BEGIN_NODE)
+        return NULL;
+
+    // 跳過BEGINNODE & node name
+    p += 4;
+    p = (const char*)align_up(p + strlen(p) + 1, 4);
+
+    // traverse 該 node 的內容
+    while(1){
+        uint32_t token = bswap32(*(uint32_t*)p);
+        
+        if(token == FDT_PROP){
+            p += 4;
+            uint32_t prop_len = bswap32(*(uint32_t*)p);
+            uint32_t prop_name_offset = bswap32(*(uint32_t*)(p + 4));
+            p += 8;
+
+            // 比對 property 名稱 
+            const char* prop_name = string_base + prop_name_offset;
+            if(strcmp(prop_name, name) == 0){
+                if(lenp)    // 如果使用者有提供存放長度的變數（不是傳 NULL），才把長度寫進去。
+                    *lenp = prop_len;
+                return (const void*)p;
+            }
+
+            p = (const char*)align_up(p + prop_len, 4);
+        }else if(token == FDT_NOP){
+            p += 4;
+        }else{
+            break;
+        }
+    }
+    return NULL;
+}
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb_ptr
+     
+    uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
+    
+    const void* fdt = (const void*)dtb_ptr;
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    // check magic number
+    if(bswap32(header->magic) != 0xd00dfeed)
+        uart_puts("Error: Invalid DTB Magic Number.\n");
+
+    // try to found UART_BASE
+    int offset = fdt_path_offset(fdt, "/soc/uart");
+    if (offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
+    // test
+    if(offset >= 0){
+        int len;
+        uint32_t* reg_prop = (uint32_t*)fdt_getprop(fdt, offset, "reg", &len);
+
+        if(reg_prop){
+            uint32_t reg0 = bswap32(reg_prop[0]);
+            uint32_t reg1 = bswap32(reg_prop[1]);
+    
+            // 組合出最終位址
+            unsigned long detected_base = ((unsigned long)reg0 << 32) | reg1;
+            if (reg0 == 0) detected_base = reg1;    // 處理常見的 32-bit 位址
+
+            uart_puts(">>> DETECTED UART BASE: ");
+            uart_hex(detected_base);
+            uart_puts("\n");
+
+            UART_BASE = detected_base; 
+
+            // 判斷 STRIDE
+            if (UART_BASE == 0x10000000UL) {
+                UART_STRIDE = 1;        // QEMU
+            } else {
+                UART_STRIDE = 4;        // OrangePi
+            }
+        }else{
+            uart_puts("Error: 'reg' property not found.\n");
+        }
+    }else{
+        uart_puts("Error: UART Node NOT found in DTB\n");
+    }
+
+    shell();
+
 }
