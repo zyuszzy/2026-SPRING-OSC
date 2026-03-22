@@ -6,6 +6,7 @@
 
 #include "uart.h"
 
+
 // Token for DTB structure Block
 #define FDT_BEGIN_NODE 0x00000001
 #define FDT_END_NODE   0x00000002
@@ -13,8 +14,6 @@
 #define FDT_NOP        0x00000004
 #define FDT_END        0x00000009
 
-extern unsigned long UART_BASE;
-extern int UART_STRIDE;
 
 // 官方 FDT header
 struct fdt_header {
@@ -84,7 +83,7 @@ static inline const void* align_up(const void* ptr, size_t align) {
 
 // ----------------------------------------------------------------- Exerciese 1 -----------------------------------------------------------
 // receive kernel through UART and load kernel
-void load_kernel_uart(){
+void load_kernel_uart(unsigned long hartid, unsigned long dtb_ptr){
     char* kernel_address = (char*)KERNEL_LOAD_ADDR;    // UART
     unsigned int magic = 0;
     unsigned int kernel_size = 0;
@@ -116,12 +115,12 @@ void load_kernel_uart(){
         uart_puts("0x20000000 ...\n");
 
     // function pointer
-    void (*kernel_entry)(void) = (void (*)(void))KERNEL_LOAD_ADDR;
-    kernel_entry();     // jump to kernel
+    void (*kernel_entry)(unsigned long, unsigned long) = (void (*)(unsigned long, unsigned long))KERNEL_LOAD_ADDR;
+    kernel_entry(hartid, dtb_ptr);     // jump to kernel
 }
 
 // receive user's input
-void shell(){
+void shell(unsigned long hartid, unsigned long dtb_ptr){
     char input_buffer[64];
     int input_index = 0;
 
@@ -161,7 +160,7 @@ void shell(){
             uart_puts("  help  - show all commands.\n");
             uart_puts("  load  - receive the kernel image over UART.\n");
         }else if(strcmp(input_buffer, "load") == 0){
-            load_kernel_uart();
+            load_kernel_uart(hartid, dtb_ptr);
         }else{
             uart_puts("Unknown command: ");
             uart_puts(input_buffer);
@@ -307,7 +306,7 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
 
 void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb_ptr
      
-    uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
+    // uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
     
     const void* fdt = (const void*)dtb_ptr;
     struct fdt_header* header = (struct fdt_header*)fdt;
@@ -317,8 +316,8 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
 
     // try to found UART_BASE
     int offset = fdt_path_offset(fdt, "/soc/uart");
-    if (offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
-    // test
+    if(offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
+    // 找到
     if(offset >= 0){
         int len;
         uint32_t* reg_prop = (uint32_t*)fdt_getprop(fdt, offset, "reg", &len);
@@ -331,10 +330,6 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
             unsigned long detected_base = ((unsigned long)reg0 << 32) | reg1;
             if (reg0 == 0) detected_base = reg1;    // 處理常見的 32-bit 位址
 
-            uart_puts(">>> DETECTED UART BASE: ");
-            uart_hex(detected_base);
-            uart_puts("\n");
-
             UART_BASE = detected_base; 
 
             // 判斷 STRIDE
@@ -343,6 +338,10 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
             } else {
                 UART_STRIDE = 4;        // OrangePi
             }
+
+            uart_puts(">>> DETECTED UART BASE: ");
+            uart_hex(detected_base);
+            uart_puts("\n");
         }else{
             uart_puts("Error: 'reg' property not found.\n");
         }
@@ -350,6 +349,6 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
         uart_puts("Error: UART Node NOT found in DTB\n");
     }
 
-    shell();
+    shell(hartid, dtb_ptr);
 
 }

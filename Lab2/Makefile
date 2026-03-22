@@ -24,7 +24,7 @@ build: clean
 	$(OBJCOPY) -O binary kernel.elf kernel.bin
 
 run: build
-	$(QEMU) -M virt -m 256M -kernel $(TARGET).bin -display none -serial pty
+	$(QEMU) -M virt -m 256M -kernel $(TARGET).bin -initrd initramfs.cpio -display none -serial pty
 
 clean:
 	rm -f *.bin *.elf *.o

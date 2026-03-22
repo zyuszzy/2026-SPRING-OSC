@@ -1,7 +1,9 @@
 // #define UART_RBR  (volatile unsigned char*)(UART_BASE + (0x0 * UART_STRIDE))
 // #define UART_THR  (volatile unsigned char*)(UART_BASE + (0x0 * UART_STRIDE))
 // #define UART_LSR  (volatile unsigned char*)(UART_BASE + (0x5 * UART_STRIDE))
-unsigned long UART_BASE = 0x10000000UL; 
+# include "uart.h"
+// unsigned long UART_BASE = 0x10000000UL; 
+unsigned long UART_BASE;
 int UART_STRIDE = 1;
 #define UART_REG(offset) (volatile unsigned char *)(UART_BASE + (offset * UART_STRIDE))
 #define LSR_DR    (1 << 0)
@@ -38,5 +40,22 @@ void uart_hex(unsigned long h) {
         n = (h >> c) & 0xf;
         n += n > 9 ? 0x57 : '0';
         uart_putc(n);
+    }
+}
+
+void uart_putd(unsigned int n){
+    if (n == 0) {
+        uart_putc('0');
+        return;
+    }
+    char buf[10]; 
+    int i = 0;
+    while (n > 0) {
+        buf[i++] = (n % 10) + '0';
+        n /= 10;
+    }
+    // ¤Ï¹L¨Ó¦L
+    while (--i >= 0) {
+        uart_putc(buf[i]);
     }
 }
