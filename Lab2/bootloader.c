@@ -175,14 +175,34 @@ void shell(unsigned long hartid, unsigned long dtb_ptr){
 int name_match(const char *node_name, const char *current_path){
     int i = 0;
 
-    while(node_name[i] != '\0' && node_name[i] != '@' && current_path[i] != '/' && current_path[i] != '\0'){
-        if(node_name[i] != current_path[i]) 
+    // 先比對到字串結束、碰到 '/' 或碰到 '@'
+    while (current_path[i] != '\0' && current_path[i] != '/' && current_path[i] != '@') {
+        if (node_name[i] != current_path[i]) 
             return 0;
         i++;
     }
 
-    if( (node_name[i] == '\0' || node_name[i] == '@') && (current_path[i] == '/' || current_path[i] == '\0') ){
-        return i;
+    // 情況 A: current_path 在這裡結束了 (或是碰到 '/')
+    // 此時 node_name 必須也結束，或者是剛好碰到 '@' 
+    if (current_path[i] == '\0' || current_path[i] == '/') {
+        if (node_name[i] == '\0' || node_name[i] == '@') {
+            return i;
+        }
+        return 0;
+    }
+
+    // 情況 B: current_path 指定了位址 (例如 uart@d4017000)
+    // 此時 node_name 必須也完全一致
+    if (current_path[i] == '@') {
+        while (node_name[i] != '\0' && current_path[i] != '\0' && current_path[i] != '/') {
+            if (node_name[i] != current_path[i])
+                return 0;
+            i++;
+        }
+        // 確認兩邊都結束或 current_path 碰到下一個層級
+        if ((node_name[i] == '\0') && (current_path[i] == '\0' || current_path[i] == '/')) {
+            return i;
+        }
     }
     return 0;
 }
@@ -279,20 +299,18 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
         uint32_t token = bswap32(*(uint32_t*)p);
         
         if(token == FDT_PROP){
-            p += 4;
-            uint32_t prop_len = bswap32(*(uint32_t*)p);
-            uint32_t prop_name_offset = bswap32(*(uint32_t*)(p + 4));
-            p += 8;
+            uint32_t prop_len = bswap32(*(uint32_t*)(p + 4));
+            uint32_t name_off = bswap32(*(uint32_t*)(p + 8));
+            const char* prop_name = string_base + name_off;
 
             // 比對 property 名稱 
-            const char* prop_name = string_base + prop_name_offset;
             if(strcmp(prop_name, name) == 0){
-                if(lenp)    // 如果使用者有提供存放長度的變數（不是傳 NULL），才把長度寫進去。
-                    *lenp = prop_len;
-                return (const void*)p;
+                if(lenp) *lenp = prop_len;  // 如果使用者有提供存放長度的變數（不是傳 NULL），才把長度寫進去。
+                return (const void*)(p + 12); // 永遠回傳 Token 往後加 12 的位置
             }
 
-            p = (const char*)align_up(p + prop_len, 4);
+            // 沒找到就跳到下一個 token
+            p = (const char*)align_up(p + 12 + prop_len, 4);
         }else if(token == FDT_NOP){
             p += 4;
         }else{
@@ -306,7 +324,7 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
 
 void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb_ptr
      
-    // uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
+    uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
     
     const void* fdt = (const void*)dtb_ptr;
     struct fdt_header* header = (struct fdt_header*)fdt;
@@ -315,29 +333,48 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
         uart_puts("Error: Invalid DTB Magic Number.\n");
 
     // try to found UART_BASE
-    int offset = fdt_path_offset(fdt, "/soc/uart");
+    int offset = fdt_path_offset(fdt, "/soc/uart@d4017000");
     if(offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
     // 找到
     if(offset >= 0){
+
+        // #######debuggung
+        const char* actual_name = (const char*)fdt + offset + 4; // BEGIN_NODE token 後面就是名字
+        uart_puts("Node Name: ");
+        uart_puts(actual_name);
+        uart_puts("\n");
+        // ############333########
+
         int len;
         uint32_t* reg_prop = (uint32_t*)fdt_getprop(fdt, offset, "reg", &len);
 
         if(reg_prop){
             uint32_t reg0 = bswap32(reg_prop[0]);
             uint32_t reg1 = bswap32(reg_prop[1]);
+
+            // ####degugging#####
+            uart_hex((unsigned long)reg0);
+            uart_puts("\n");
+            uart_hex((unsigned long)reg1);
+            // ###############
     
             // 組合出最終位址
-            unsigned long detected_base = ((unsigned long)reg0 << 32) | reg1;
+            unsigned long detected_base = ((unsigned long)reg0 << 32) | (unsigned long)reg1;
             if (reg0 == 0) detected_base = reg1;    // 處理常見的 32-bit 位址
 
-            UART_BASE = detected_base; 
+            uart_puts(">>> DETECTED UART BASE: ");
+            uart_hex(detected_base);
+            uart_puts("\n");
+
+            UART_BASE = detected_base;
+            __asm__ volatile ("fence rw, rw"); // 確保之前的寫入先完成，後續讀取再開始
 
             // 判斷 STRIDE
-            if (UART_BASE == 0x10000000UL) {
+            /*if (UART_BASE == 0x10000000UL) {
                 UART_STRIDE = 1;        // QEMU
             } else {
                 UART_STRIDE = 4;        // OrangePi
-            }
+            }*/
 
             uart_puts(">>> DETECTED UART BASE: ");
             uart_hex(detected_base);

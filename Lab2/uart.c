@@ -2,9 +2,9 @@
 // #define UART_THR  (volatile unsigned char*)(UART_BASE + (0x0 * UART_STRIDE))
 // #define UART_LSR  (volatile unsigned char*)(UART_BASE + (0x5 * UART_STRIDE))
 # include "uart.h"
-// unsigned long UART_BASE = 0x10000000UL; 
 unsigned long UART_BASE;
-int UART_STRIDE = 1;
+int UART_STRIDE = 4;
+unsigned long UART_BASE;
 #define UART_REG(offset) (volatile unsigned char *)(UART_BASE + (offset * UART_STRIDE))
 #define LSR_DR    (1 << 0)
 #define LSR_TDRQ  (1 << 5)

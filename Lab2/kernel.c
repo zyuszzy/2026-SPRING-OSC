@@ -441,7 +441,14 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
         int len;
         uint32_t* start = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-start", &len);
         if(start){
-            cpio_addr = (void*)(unsigned long)bswap32(*start);
+            if (len == 4) {
+                cpio_addr = (void*)(unsigned long)bswap32(*start);
+            } else if (len == 8) {
+                // 如果是 8 bytes，要把兩個 32-bit 組合成 64-bit，並處理 Big-Endian
+                uint64_t high = bswap32(start[0]);
+                uint64_t low = bswap32(start[1]);
+                cpio_addr = (void*)(unsigned long)((high << 32) | low);
+            }
         }
     }
 
