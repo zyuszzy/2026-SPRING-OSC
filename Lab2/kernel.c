@@ -279,7 +279,7 @@ void initrd_list(const void* rd) {
             break;
 
         uart_putd(file_size);
-        uart_puts("       ");
+        uart_puts("      ");
         uart_puts(filename);
         uart_puts("\n");
         
@@ -332,6 +332,7 @@ void initrd_cat(const void* rd, const char* filename) {
     uart_puts(filename);
     uart_puts(": No such file\n");
 }
+// -----------------------------------------------------------------------------------------------------------------------------------------
 
 void kernel_shell(void* cpio_addr){
     char input_buffer[64];
@@ -373,7 +374,7 @@ void kernel_shell(void* cpio_addr){
             uart_puts("  cat  - show file's content.\n");
         }else if(strcmp(input_buffer, "ls") == 0){
             initrd_list(cpio_addr);
-        }else if(strncmp(input_buffer, "cat ", 4)){
+        }else if(strncmp(input_buffer, "cat ", 4) == 0){
             char* target_file = input_buffer + 4;
             initrd_cat(cpio_addr, target_file);
         }else{
