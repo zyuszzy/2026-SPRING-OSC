@@ -324,7 +324,7 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
 
 void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb_ptr
      
-    uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
+    // uart_puts(">>> DTB locate at: "); uart_hex(dtb_ptr); uart_puts("\n");
     
     const void* fdt = (const void*)dtb_ptr;
     struct fdt_header* header = (struct fdt_header*)fdt;
@@ -339,10 +339,10 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
     if(offset >= 0){
 
         // #######debuggung
-        const char* actual_name = (const char*)fdt + offset + 4; // BEGIN_NODE token 後面就是名字
-        uart_puts("Node Name: ");
-        uart_puts(actual_name);
-        uart_puts("\n");
+        // const char* actual_name = (const char*)fdt + offset + 4; // BEGIN_NODE token 後面就是名字
+        // uart_puts("Node Name: ");
+        // uart_puts(actual_name);
+        // uart_puts("\n");
         // ############333########
 
         int len;
@@ -352,19 +352,19 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
             uint32_t reg0 = bswap32(reg_prop[0]);
             uint32_t reg1 = bswap32(reg_prop[1]);
 
-            // ####degugging#####
-            uart_hex((unsigned long)reg0);
-            uart_puts("\n");
-            uart_hex((unsigned long)reg1);
-            // ###############
+            // // ####degugging#####
+            // uart_hex((unsigned long)reg0);
+            // uart_puts("\n");
+            // uart_hex((unsigned long)reg1);
+            // // ###############
     
             // 組合出最終位址
             unsigned long detected_base = ((unsigned long)reg0 << 32) | (unsigned long)reg1;
             if (reg0 == 0) detected_base = reg1;    // 處理常見的 32-bit 位址
 
-            uart_puts(">>> DETECTED UART BASE: ");
-            uart_hex(detected_base);
-            uart_puts("\n");
+            // uart_puts(">>> DETECTED UART BASE: ");
+            // uart_hex(detected_base);
+            // uart_puts("\n");
 
             UART_BASE = detected_base;
             __asm__ volatile ("fence rw, rw"); // 確保之前的寫入先完成，後續讀取再開始

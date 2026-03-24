@@ -100,14 +100,34 @@ static int align(int n, int byte) {
 int name_match(const char *node_name, const char *current_path){
     int i = 0;
 
-    while(node_name[i] != '\0' && node_name[i] != '@' && current_path[i] != '/' && current_path[i] != '\0'){
-        if(node_name[i] != current_path[i]) 
+    // 先比對到字串結束、碰到 '/' 或碰到 '@'
+    while (current_path[i] != '\0' && current_path[i] != '/' && current_path[i] != '@') {
+        if (node_name[i] != current_path[i]) 
             return 0;
         i++;
     }
 
-    if( (node_name[i] == '\0' || node_name[i] == '@') && (current_path[i] == '/' || current_path[i] == '\0') ){
-        return i;
+    // 情況 A: current_path 在這裡結束了 (或是碰到 '/')
+    // 此時 node_name 必須也結束，或者是剛好碰到 '@' 
+    if (current_path[i] == '\0' || current_path[i] == '/') {
+        if (node_name[i] == '\0' || node_name[i] == '@') {
+            return i;
+        }
+        return 0;
+    }
+
+    // 情況 B: current_path 指定了位址 (例如 uart@d4017000)
+    // 此時 node_name 必須也完全一致
+    if (current_path[i] == '@') {
+        while (node_name[i] != '\0' && current_path[i] != '\0' && current_path[i] != '/') {
+            if (node_name[i] != current_path[i])
+                return 0;
+            i++;
+        }
+        // 確認兩邊都結束或 current_path 碰到下一個層級
+        if ((node_name[i] == '\0') && (current_path[i] == '\0' || current_path[i] == '/')) {
+            return i;
+        }
     }
     return 0;
 }
@@ -397,7 +417,7 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
 
     // ================================== 找 UART address =================================
-    int uart_offset = fdt_path_offset(fdt, "/soc/uart");
+    int uart_offset = fdt_path_offset(fdt, "/soc/uart@d4017000");
     if(uart_offset < 0) uart_offset = fdt_path_offset(fdt, "/soc/serial");
     // 找到
     if(uart_offset >= 0){
