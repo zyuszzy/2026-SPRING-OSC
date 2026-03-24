@@ -333,8 +333,9 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
         uart_puts("Error: Invalid DTB Magic Number.\n");
 
     // try to found UART_BASE
-    int offset = fdt_path_offset(fdt, "/soc/uart@d4017000");
-    if(offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
+    // int offset = fdt_path_offset(fdt, "/soc/uart@d4017000");
+    // if(offset < 0) offset = fdt_path_offset(fdt, "/soc/serial");
+    int offset = fdt_path_offset(fdt, "/soc/serial");
     // §ä¨ì
     if(offset >= 0){
 
