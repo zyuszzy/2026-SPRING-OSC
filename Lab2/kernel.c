@@ -352,7 +352,6 @@ void initrd_cat(const void* rd, const char* filename) {
     uart_puts(filename);
     uart_puts(": No such file\n");
 }
-// -----------------------------------------------------------------------------------------------------------------------------------------
 
 void kernel_shell(void* cpio_addr){
     char input_buffer[64];
