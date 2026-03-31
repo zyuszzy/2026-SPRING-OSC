@@ -150,3 +150,32 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
     }
     return NULL;
 }
+
+void fdt_get_boot_info(const void* fdt, boot_info_t* info){
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    info->dtb_start = (uint64_t)fdt;
+    info->dtb_size = bswap32(header->totalsize);
+
+    // memory
+    int mem_offset = fdt_path_offset(fdt, "/memory");
+    if(mem_offset >= 0){
+        int len;
+        uint32_t* reg = (uint32_t*)fdt_getprop(fdt, mem_offset, "reg", &len);
+        if(reg){
+            info->mem_start = ((uint64_t)bswap32(reg[0]) << 32) | bswap32(reg[1]);
+            info->mem_size  = ((uint64_t)bswap32(reg[2]) << 32) | bswap32(reg[3]);
+        }
+    }
+
+    // initramfs
+    int chosen_offset = fdt_path_offset(fdt, "/chosen");
+    if(chosen_offset >= 0){
+        int len;
+        uint32_t* start = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-start", &len);
+        uint32_t* end = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-end", &len);
+        if(start && end){
+            info->initrd_start = (uint64_t)bswap32(*start); 
+            info->initrd_end   = (uint64_t)bswap32(*end);
+        }
+    }
+}

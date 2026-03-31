@@ -25,8 +25,18 @@ struct fdt_header {
     uint32_t size_dt_struct;        
 };
 
+typedef struct {
+    uint64_t mem_start;
+    uint64_t mem_size;
+    uint64_t initrd_start;
+    uint64_t initrd_end;
+    uint64_t dtb_start;
+    uint32_t dtb_size;
+} boot_info_t;
+
 int name_match(const char *node_name, const char *current_path);
 int fdt_path_offset(const void* fdt, const char* path);
 const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *lenp);
+void fdt_get_boot_info(const void* fdt, boot_info_t* info);
 
 #endif

@@ -51,5 +51,6 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     uart_puts("Starting Kernel...\n");
     uart_puts("===== OSC LAB3 =====\n");
 
+    mm_init();
     kernel_shell();
 }
