@@ -2,6 +2,7 @@
 # include "type.h"
 # include "uart.h"
 # include "string.h"
+# include "mm.h"
 
 int name_match(const char *node_name, const char *current_path){
     int i = 0;
@@ -176,6 +177,61 @@ void fdt_get_boot_info(const void* fdt, boot_info_t* info){
         if(start && end){
             info->initrd_start = (uint64_t)bswap32(*start); 
             info->initrd_end   = (uint64_t)bswap32(*end);
+        }
+    }
+}
+
+void fdt_additional_reserve_mem(const void* fdt){
+    int reserved_off = fdt_path_offset(fdt, "/reserved-memory");
+    if (reserved_off < 0) return;
+
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    const char* fdt_base = (const char*)fdt;
+    //const char* string_base = fdt_base + bswap32(header->off_dt_strings);
+    const char* p = fdt_base + bswap32(header->off_dt_struct);
+    
+    p += reserved_off; 
+
+    // check node in reserved-memory
+    int level = 0;
+    while(1){
+        uint32_t token = bswap32(*(uint32_t*)p);
+
+        if(token == FDT_BEGIN_NODE){
+            level++;
+            const char* node_name = p + 4;
+            if(level == 1 && *node_name != '\0'){      // child node
+                int node_off = (int)(p - fdt_base);
+                int len;
+                uint32_t* reg = (uint32_t*)fdt_getprop(fdt, node_off, "reg", &len);
+                if(reg && len >= 16){
+                    uint64_t start = ((uint64_t)bswap32(reg[0]) << 32) | bswap32(reg[1]);
+                    uint64_t size  = ((uint64_t)bswap32(reg[2]) << 32) | bswap32(reg[3]);
+                    #ifndef BOOTLOADER
+                        memory_early_reserve(start, start + size);
+                    #endif
+                }
+            }
+            p += 4;
+            p = (const char*)align_up(p + strlen(node_name) + 1, 4);
+        } 
+        else if(token == FDT_END_NODE){
+            level--;
+            if(level < 0)
+                break;
+            p += 4;
+        } 
+        else if(token == FDT_PROP){
+            p += 4;
+            uint32_t prop_len = bswap32(*(uint32_t*)p);
+            p += 8;
+            p = (const char*)align_up(p + prop_len, 4);
+        } 
+        else if(token == FDT_END){
+            break;
+        }
+        else{
+            p += 4;
         }
     }
 }

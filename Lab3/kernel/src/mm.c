@@ -2,11 +2,26 @@
 # include "uart.h"
 # include "type.h"
 
-struct frame frames[FRAME_COUNT];
-struct list_head free_areas[MAX_ORDER + 1];
+unsigned long MEM_START;
+unsigned long MEM_SIZE;
+unsigned int  FRAME_COUNT;
 
+// for early reserve
+typedef struct{
+    unsigned long start;
+    unsigned long end;
+} res_area_t;
+res_area_t early_res[20]; 
+int early_res_count = 0;
+
+// for buddy system & slab alloc
+struct frame *frames;
+struct list_head free_areas[MAX_ORDER + 1];
 int chunk_offsets[] = {16, 32, 48, 64, 128, 256, 512, 1024, 2048};
 struct list_head chunk_pools[9];
+
+
+// ================================================================================================================================
 
 static void log_mm_range(const char *prefix, int index, int order){
     int page_count = (1 << order);
@@ -22,7 +37,61 @@ static void log_mm_range(const char *prefix, int index, int order){
     uart_puts("]\n");
 }
 
-void mm_init(){
+
+void memory_early_reserve(unsigned long start, unsigned long end){
+    early_res[early_res_count].start = start;
+    early_res[early_res_count].end = end;
+    early_res_count++;
+    /*uart_puts("[MM] Reserved range: ");
+    uart_hex(start);
+    uart_puts(" - ");
+    uart_hex(end);
+    uart_puts("\n");*/
+}
+
+void memory_reserve(unsigned long start, unsigned long size){
+    if (frames == (void*)0) return;
+
+    int start_index = (start - MEM_START)/PAGE_SIZE;
+    int end_index = (start + size - 1 - MEM_START)/PAGE_SIZE;
+
+    for(int i=start_index ; i<=end_index ; i++){
+        if(i < 0 || i >= FRAME_COUNT)
+            continue;
+        frames[i].refcount = 1;
+    }
+
+    uart_puts("[MM] Reserved range: ");
+    uart_hex(start);
+    uart_puts(" - ");
+    uart_hex(start + size);
+    uart_puts("\n");
+}
+
+void mm_init(unsigned long mem_start, unsigned long mem_size){
+
+    MEM_START = mem_start; 
+    MEM_SIZE = mem_size;
+    FRAME_COUNT = mem_size / PAGE_SIZE;
+    unsigned long array_size = FRAME_COUNT * sizeof(struct frame);  //frame array size
+
+    unsigned long candidate_addr = (unsigned long)_end;
+    candidate_addr = (candidate_addr + 4095) & ~4095;
+
+    int found = 0;
+    while(!found){
+        found = 1;       // 假設可用
+        for(int i=0 ; i<early_res_count ; i++){
+            if(!(candidate_addr + array_size <= early_res[i].start || candidate_addr >= early_res[i].end)){
+                candidate_addr = (early_res[i].end + 4095) & ~4095;
+                found = 0;
+                break;
+            }
+        }
+    }
+
+    frames = (struct frame*)candidate_addr;
+
     // list init
     for(int i=0 ; i<=MAX_ORDER ; i++){
         INIT_LIST_HEAD(&free_areas[i]);
@@ -41,11 +110,51 @@ void mm_init(){
         frames[i].chunk_size = 0;
     }
 
+    // reserve memory
+    for(int i=0 ; i<early_res_count ; i++){
+        memory_reserve(early_res[i].start, early_res[i].end - early_res[i].start);
+    }
+    memory_reserve((unsigned long)frames, array_size);
+}
+
+void mm_final_init(){
     // 切成最大ORDER
     for(int i=0 ; i<FRAME_COUNT ; i+=(1 << MAX_ORDER)){
-        frames[i].order = MAX_ORDER;
-        list_add_tail(&frames[i].list, &free_areas[MAX_ORDER]);
+        
+        int have_block_reserved = 0;
+        for(int j=0 ; j<(1 << MAX_ORDER) ; j++){
+            if((i + j) < FRAME_COUNT && frames[i + j].refcount == 1){
+                have_block_reserved = 1;
+                break;
+            }
+        }
+        
+        if(!have_block_reserved){       // inside not have reserved block
+            frames[i].order = MAX_ORDER;
+            list_add_tail(&frames[i].list, &free_areas[MAX_ORDER]);
+        }
     }
+}
+
+void mm_free_lists(){
+    uart_puts("\n-------- Current Buddy System Status --------\n");
+    for(int i=0 ; i<=MAX_ORDER ; i++){
+        int count = 0;
+        struct list_head *curr;
+
+        list_for_each(curr, &free_areas[i]){
+            count++;
+        }
+        
+        uart_puts("Order ");
+        uart_putd(i);
+        uart_puts(": ");
+        uart_putd(count);
+        uart_puts(" blocks (");
+        uart_putd(count * (1 << i) * PAGE_SIZE / 1024);     //KB
+        uart_puts(" KB)\n");
+    }
+    uart_puts("-----------------------------------------------\n\n");
 }
 
 // 傳入 byte 數

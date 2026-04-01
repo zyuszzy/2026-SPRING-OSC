@@ -6,9 +6,10 @@
 
 #define PAGE_SIZE 4096
 #define MAX_ORDER 7 
-#define MEM_START 0x81000000
-#define MEM_SIZE  0x01000000    // 16MB
-#define FRAME_COUNT (MEM_SIZE / PAGE_SIZE)  // 4096 frames
+extern unsigned long MEM_START;
+extern unsigned long MEM_SIZE;
+extern unsigned int  FRAME_COUNT;
+extern char _start[], _end[];
 
 struct frame{
     struct list_head list; 
@@ -19,8 +20,11 @@ struct frame{
     int chunk_size;
 };
 
-void mm_init();
+void mm_init(unsigned long mem_start, unsigned long mem_size);
 void *allocate(unsigned int size);
 void free(void *ptr);
+void memory_early_reserve(unsigned long start, unsigned long end);
+void mm_final_init();
+void mm_free_lists();
 
 #endif

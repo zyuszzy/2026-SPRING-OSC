@@ -38,5 +38,6 @@ int name_match(const char *node_name, const char *current_path);
 int fdt_path_offset(const void* fdt, const char* path);
 const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *lenp);
 void fdt_get_boot_info(const void* fdt, boot_info_t* info);
+void fdt_additional_reserve_mem(const void* fdt);
 
 #endif

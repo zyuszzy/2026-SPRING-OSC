@@ -1,0 +1,340 @@
+
+bootloader > load
+Please run the Python script for loading kernel...
+Loading kernel, the Kernel Size: 0x00000000000033c8
+Kernel loaded successfully! Jump to kernel 0x82000000 ...
+>>> DETECTED UART BASE: 0x0000000010000000
+[MAIN] Memory Start: 0x0000000080000000
+[MAIN] Memory Size : 0x0000000010000000
+[MAIN] Initrd Start : 0x0000000000000000
+[MAIN] Initrd End : 0x0000000000000000
+[MAIN] DTB Start : 0x000000008fe00000
+[MAIN] DTB Size : 0x0000000000001516
+[MAIN] Reserving Memory...
+[MM] Reserved range: 0x0000000082000000 - 0x0000000082007640
+[MM] Reserved range: 0x000000008fe00000 - 0x000000008fe01516
+[MM] Reserved range: 0x0000000000000000 - 0x0000000000000000
+[MM] Reserved range: 0x0000000080000000 - 0x0000000080040000
+[MM] Reserved range: 0x0000000080040000 - 0x0000000080060000
+[MM] Reserved range: 0x0000000082008000 - 0x0000000082288000
+[MAIN] Memory Reserved successful!
+
+-------- Current Buddy System Status --------
+Order 0: 0 blocks (0 KB)
+Order 1: 0 blocks (0 KB)
+Order 2: 0 blocks (0 KB)
+Order 3: 0 blocks (0 KB)
+Order 4: 0 blocks (0 KB)
+Order 5: 0 blocks (0 KB)
+Order 6: 0 blocks (0 KB)
+Order 7: 504 blocks (258048 KB)
+-----------------------------------------------
+
+Starting Kernel...
+===== OSC LAB3 =====
+# test
+Testing memory allocation...
+(1-1) --------------------------------------------------
+  [-] Remove page 128 at order 7. Range of pages: [128, 255]
+  [+] Add page 192 at order 6. Range of pages: [192, 255]
+  [+] Add page 160 at order 5. Range of pages: [160, 191]
+  [+] Add page 144 at order 4. Range of pages: [144, 159]
+  [+] Add page 136 at order 3. Range of pages: [136, 143]
+  [+] Add page 132 at order 2. Range of pages: [132, 135]
+  [+] Add page 130 at order 1. Range of pages: [130, 131]
+  [+] Add page 129 at order 0. Range of pages: [129, 129]
+  [Page] Allocate 0x0x0000000080080000 (page 128) at order 0.
+(1-2) --------------------------------------------------
+  [-] Remove page 130 at order 1. Range of pages: [130, 131]
+  [Page] Allocate 0x0x0000000080082000 (page 130) at order 1.
+(1-3) --------------------------------------------------
+  [-] Remove page 129 at order 0. Range of pages: [129, 129]
+  [Page] Allocate 0x0x0000000080081000 (page 129) at order 0.
+(1-4) --------------------------------------------------
+  [-] Remove page 132 at order 2. Range of pages: [132, 135]
+  [+] Add page 134 at order 1. Range of pages: [134, 135]
+  [+] Add page 133 at order 0. Range of pages: [133, 133]
+  [Page] Allocate 0x0x0000000080084000 (page 132) at order 0.
+(1-5) --------------------------------------------------
+  [+] Add page 128 at order 0. Range of pages: [128, 128]
+  [Page] Free 0x0x0000000080080000 (page 128) , add back to order 0.
+(1-6) -------------------------------------------------
+  [+] Add page 130 at order 1. Range of pages: [130, 131]
+  [Page] Free 0x0x0000000080082000 (page 130) , add back to order 1.
+(1-7) --------------------------------------------------
+  [*] Buddy found! buddy idx: 128 for page 129 with order 0
+  [-] Remove page 128 at order 0. Range of pages: [128, 128]
+  [*] Buddy found! buddy idx: 130 for page 128 with order 1
+  [-] Remove page 130 at order 1. Range of pages: [130, 131]
+  [+] Add page 128 at order 2. Range of pages: [128, 131]
+  [Page] Free 0x0x0000000080081000 (page 129) , add back to order 2.
+(1-8) --------------------------------------------------
+  [*] Buddy found! buddy idx: 133 for page 132 with order 0
+  [-] Remove page 133 at order 0. Range of pages: [133, 133]
+  [*] Buddy found! buddy idx: 134 for page 132 with order 1
+  [-] Remove page 134 at order 1. Range of pages: [134, 135]
+  [*] Buddy found! buddy idx: 128 for page 132 with order 2
+  [-] Remove page 128 at order 2. Range of pages: [128, 131]
+  [*] Buddy found! buddy idx: 136 for page 128 with order 3
+  [-] Remove page 136 at order 3. Range of pages: [136, 143]
+  [*] Buddy found! buddy idx: 144 for page 128 with order 4
+  [-] Remove page 144 at order 4. Range of pages: [144, 159]
+  [*] Buddy found! buddy idx: 160 for page 128 with order 5
+  [-] Remove page 160 at order 5. Range of pages: [160, 191]
+  [*] Buddy found! buddy idx: 192 for page 128 with order 6
+  [-] Remove page 192 at order 6. Range of pages: [192, 255]
+  [+] Add page 128 at order 7. Range of pages: [128, 255]
+  [Page] Free 0x0x0000000080084000 (page 132) , add back to order 7.
+Testing dynamic allocator...
+(2-1) --------------------------------------------------
+  [-] Remove page 128 at order 7. Range of pages: [128, 255]
+  [+] Add page 192 at order 6. Range of pages: [192, 255]
+  [+] Add page 160 at order 5. Range of pages: [160, 191]
+  [+] Add page 144 at order 4. Range of pages: [144, 159]
+  [+] Add page 136 at order 3. Range of pages: [136, 143]
+  [+] Add page 132 at order 2. Range of pages: [132, 135]
+  [+] Add page 130 at order 1. Range of pages: [130, 131]
+  [+] Add page 129 at order 0. Range of pages: [129, 129]
+  [Page] Allocate 0x0x0000000080080000 (page 128) at order 0.
+  [Chunk] Allocate 0x0x0000000080080000 from New Page(sliced), chunk size 16.
+(2-2) --------------------------------------------------
+  [-] Remove page 129 at order 0. Range of pages: [129, 129]
+  [Page] Allocate 0x0x0000000080081000 (page 129) at order 0.
+  [Chunk] Allocate 0x0x0000000080081000 from New Page(sliced), chunk size 32.
+(2-3) --------------------------------------------------
+  [-] Remove page 130 at order 1. Range of pages: [130, 131]
+  [+] Add page 131 at order 0. Range of pages: [131, 131]
+  [Page] Allocate 0x0x0000000080082000 (page 130) at order 0.
+  [Chunk] Allocate 0x0x0000000080082000 from New Page(sliced), chunk size 64.
+(2-4) --------------------------------------------------
+  [-] Remove page 131 at order 0. Range of pages: [131, 131]
+  [Page] Allocate 0x0x0000000080083000 (page 131) at order 0.
+  [Chunk] Allocate 0x0x0000000080083000 from New Page(sliced), chunk size 128.
+(2-5) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080080000 at chunck size 16.
+(2-6) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080081000 at chunck size 32.
+(2-7) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080082000 at chunck size 64.
+(2-8) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080083000 at chunck size 128.
+(2-9) --------------------------------------------------
+  [Chunk] Allocate 0x0x0000000080080000 from existing pool, chunk size 16.
+(2-10) --------------------------------------------------
+  [Chunk] Allocate 0x0x0000000080081000 from existing pool, chunk size 32.
+(2-11) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080080000 at chunck size 16.
+(2-12) --------------------------------------------------
+  [Chunk] Free 0x0x0000000080081000 at chunck size 32.
+(3-1) --------------------------------------------------
+  [Chunk] Allocate 0x0x0000000080083000 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083080 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083100 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083180 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083200 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083280 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083300 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083380 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083400 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083480 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083500 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083580 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083600 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083680 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083700 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083780 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083800 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083880 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083900 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083980 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083a00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083a80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083b00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083b80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083c00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083c80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083d00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083d80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083e00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083e80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083f00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080083f80 from existing pool, chunk size 128.
+  [-] Remove page 132 at order 2. Range of pages: [132, 135]
+  [+] Add page 134 at order 1. Range of pages: [134, 135]
+  [+] Add page 133 at order 0. Range of pages: [133, 133]
+  [Page] Allocate 0x0x0000000080084000 (page 132) at order 0.
+  [Chunk] Allocate 0x0x0000000080084000 from New Page(sliced), chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084080 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084100 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084180 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084200 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084280 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084300 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084380 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084400 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084480 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084500 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084580 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084600 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084680 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084700 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084780 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084800 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084880 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084900 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084980 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084a00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084a80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084b00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084b80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084c00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084c80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084d00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084d80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084e00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084e80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084f00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080084f80 from existing pool, chunk size 128.
+  [-] Remove page 133 at order 0. Range of pages: [133, 133]
+  [Page] Allocate 0x0x0000000080085000 (page 133) at order 0.
+  [Chunk] Allocate 0x0x0000000080085000 from New Page(sliced), chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085080 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085100 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085180 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085200 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085280 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085300 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085380 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085400 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085480 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085500 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085580 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085600 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085680 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085700 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085780 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085800 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085880 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085900 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085980 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085a00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085a80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085b00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085b80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085c00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085c80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085d00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085d80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085e00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085e80 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085f00 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080085f80 from existing pool, chunk size 128.
+  [-] Remove page 134 at order 1. Range of pages: [134, 135]
+  [+] Add page 135 at order 0. Range of pages: [135, 135]
+  [Page] Allocate 0x0x0000000080086000 (page 134) at order 0.
+  [Chunk] Allocate 0x0x0000000080086000 from New Page(sliced), chunk size 128.
+  [Chunk] Allocate 0x0x0000000080086080 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080086100 from existing pool, chunk size 128.
+  [Chunk] Allocate 0x0x0000000080086180 from existing pool, chunk size 128.
+  [Chunk] Free 0x0x0000000080083000 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083080 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083100 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083180 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083200 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083280 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083300 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083380 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083400 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083480 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083500 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083580 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083600 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083680 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083700 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083780 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083800 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083880 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083900 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083980 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083a00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083a80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083b00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083b80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083c00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083c80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083d00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083d80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083e00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083e80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083f00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080083f80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084000 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084080 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084100 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084180 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084200 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084280 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084300 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084380 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084400 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084480 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084500 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084580 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084600 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084680 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084700 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084780 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084800 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084880 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084900 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084980 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084a00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084a80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084b00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084b80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084c00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084c80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084d00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084d80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084e00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084e80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084f00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080084f80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085000 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085080 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085100 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085180 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085200 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085280 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085300 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085380 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085400 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085480 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085500 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085580 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085600 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085680 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085700 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085780 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085800 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085880 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085900 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085980 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085a00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085a80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085b00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085b80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085c00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085c80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085d00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085d80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085e00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085e80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085f00 at chunck size 128.
+  [Chunk] Free 0x0x0000000080085f80 at chunck size 128.
+  [Chunk] Free 0x0x0000000080086000 at chunck size 128.
+  [Chunk] Free 0x0x0000000080086080 at chunck size 128.
+  [Chunk] Free 0x0x0000000080086100 at chunck size 128.
+  [Chunk] Free 0x0x0000000080086180 at chunck size 128.
+Allocation failed as expected for size > MEM_SIZE
+# 

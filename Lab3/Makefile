@@ -14,7 +14,6 @@ SHARED_DIR = shared
 BOOT_DIR = bootloader
 KERN_DIR = kernel
 
-# Include 路徑 (讓 gcc 知道去哪裡找 type.h, uart.h 等)
 INCLUDES = -I$(SHARED_DIR)/include -I$(KERN_DIR)/include
 
 # ------------------------------------------------------------------
@@ -29,8 +28,16 @@ $(SHARED_DIR)/src/%.o: $(SHARED_DIR)/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # 2. 編譯 Bootloader
+boot_shared_objs = $(SHARED_DIR)/src/uart_boot.o $(SHARED_DIR)/src/fdt_boot.o $(SHARED_DIR)/src/string_boot.o
 boot_objs = $(BOOT_DIR)/start.o $(BOOT_DIR)/main.o
-bootloader.elf: $(boot_objs) $(shared_objs)
+
+$(SHARED_DIR)/src/%_boot.o: $(SHARED_DIR)/src/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -DBOOTLOADER -c $< -o $@
+
+$(BOOT_DIR)/%.o: $(BOOT_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -DBOOTLOADER -c $< -o $@
+
+bootloader.elf: $(boot_objs) $(boot_shared_objs)
 	$(LD) -T $(BOOT_DIR)/link.ld -o $@ $^
 
 bootloader.bin: bootloader.elf

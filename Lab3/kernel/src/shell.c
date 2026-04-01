@@ -1,4 +1,5 @@
 # include "shell.h"
+# include "mm.h"
 
 void test_alloc_1() {
     uart_puts("Testing memory allocation...\n");
