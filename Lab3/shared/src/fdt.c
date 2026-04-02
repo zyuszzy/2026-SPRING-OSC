@@ -172,11 +172,24 @@ void fdt_get_boot_info(const void* fdt, boot_info_t* info){
     int chosen_offset = fdt_path_offset(fdt, "/chosen");
     if(chosen_offset >= 0){
         int len;
+        int len2;
         uint32_t* start = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-start", &len);
-        uint32_t* end = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-end", &len);
+        uint32_t* end = (uint32_t*)fdt_getprop(fdt, chosen_offset, "linux,initrd-end", &len2);
         if(start && end){
-            info->initrd_start = (uint64_t)bswap32(*start); 
-            info->initrd_end   = (uint64_t)bswap32(*end);
+            if (len == 4) {
+                info->initrd_start = (uint64_t)bswap32(*start);     
+            } else if (len == 8) {
+                uint64_t high = bswap32(start[0]);
+                uint64_t low = bswap32(start[1]);
+                info->initrd_start = (uint64_t)((high << 32) | low);
+            }
+            if (len2 == 4) {
+                info->initrd_end = (uint64_t)bswap32(*end);     
+            } else if (len2 == 8) {
+                uint64_t high2 = bswap32(end[0]);
+                uint64_t low2 = bswap32(end[1]);
+                info->initrd_end = (uint64_t)((high2 << 32) | low2);
+            }
         }
     }
 }
@@ -188,12 +201,10 @@ void fdt_additional_reserve_mem(const void* fdt){
     struct fdt_header* header = (struct fdt_header*)fdt;
     const char* fdt_base = (const char*)fdt;
     //const char* string_base = fdt_base + bswap32(header->off_dt_strings);
-    const char* p = fdt_base + bswap32(header->off_dt_struct);
-    
-    p += reserved_off; 
+    const char* p = fdt_base + reserved_off;
 
     // check node in reserved-memory
-    int level = 0;
+    int level = -1;
     while(1){
         uint32_t token = bswap32(*(uint32_t*)p);
 
@@ -201,12 +212,13 @@ void fdt_additional_reserve_mem(const void* fdt){
             level++;
             const char* node_name = p + 4;
             if(level == 1 && *node_name != '\0'){      // child node
+                
                 int node_off = (int)(p - fdt_base);
                 int len;
                 uint32_t* reg = (uint32_t*)fdt_getprop(fdt, node_off, "reg", &len);
-                if(reg && len >= 16){
-                    uint64_t start = ((uint64_t)bswap32(reg[0]) << 32) | bswap32(reg[1]);
-                    uint64_t size  = ((uint64_t)bswap32(reg[2]) << 32) | bswap32(reg[3]);
+                if(reg){
+                    uint64_t start = ((uint64_t)bswap32(reg[0]) << 32) | (uint64_t)bswap32(reg[1]);
+                    uint64_t size  = ((uint64_t)bswap32(reg[2]) << 32) | (uint64_t)bswap32(reg[3]);
                     #ifndef BOOTLOADER
                         memory_early_reserve(start, start + size);
                     #endif

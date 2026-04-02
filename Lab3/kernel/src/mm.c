@@ -80,7 +80,7 @@ void mm_init(unsigned long mem_start, unsigned long mem_size){
 
     int found = 0;
     while(!found){
-        found = 1;       // 安砞ノ
+        found = 1;       // Assume founded
         for(int i=0 ; i<early_res_count ; i++){
             if(!(candidate_addr + array_size <= early_res[i].start || candidate_addr >= early_res[i].end)){
                 candidate_addr = (early_res[i].end + 4095) & ~4095;
@@ -118,7 +118,7 @@ void mm_init(unsigned long mem_start, unsigned long mem_size){
 }
 
 void mm_final_init(){
-    // ちΘ程ORDER
+    // slice into MAX_ORDER
     for(int i=0 ; i<FRAME_COUNT ; i+=(1 << MAX_ORDER)){
         
         int have_block_reserved = 0;
@@ -157,14 +157,14 @@ void mm_free_lists(){
     uart_puts("-----------------------------------------------\n\n");
 }
 
-// 肚 byte 计
+// size=bytes
 void* allocate(unsigned int size){
 
     // -------------------------------------- slab alloc -----------------------------------
     if(size < 4096){
         int pool_index = -1;
 
-        // т程続chunk
+        // find suitable chunk
         for(int i=0 ; i<9 ; i++){
             if(size <= chunk_offsets[i]){
                 pool_index = i;
@@ -220,7 +220,6 @@ void* allocate(unsigned int size){
     if(target_order > MAX_ORDER)
         return (void *)0;
 
-    // ┕т
     for(int current_order = target_order ; current_order <= MAX_ORDER ; current_order++){
         if(!list_empty(&free_areas[current_order])){
             struct list_head *current_list_head = free_areas[current_order].next;
@@ -237,7 +236,7 @@ void* allocate(unsigned int size){
                 int buddy_index = current_index + (1 << current_order);
                 frames[buddy_index].order = current_order;
                 
-                list_add(&frames[buddy_index].list, &free_areas[current_order]);    // buddy free ares
+                list_add(&frames[buddy_index].list, &free_areas[current_order]);    // buddy ?[?Jfree ares
                 log_mm_range("  [+] Add", buddy_index, current_order);
             }
 
@@ -258,7 +257,6 @@ void* allocate(unsigned int size){
         }
     }
 
-    // тぃ
     return (void *)0;
 }
 
@@ -294,7 +292,7 @@ void free(void *ptr){
     int current_order = f->order;
     f->refcount = 0;
 
-    // ┕тぃㄖ
+    // ┕?Wт?iぃ?i?H?Xㄖ
     while(current_order < MAX_ORDER){
         int buddy_index = frame_index ^ (1 << current_order);
         struct frame *buddy = &frames[buddy_index];
@@ -310,7 +308,6 @@ void free(void *ptr){
         uart_putd(current_order);
         uart_puts("\n");
 
-        // р buddy眖free_area簿埃
         list_del(&buddy->list);
         log_mm_range("  [-] Remove", buddy_index, current_order);
 

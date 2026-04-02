@@ -5,7 +5,7 @@
 # include "type.h"
 
 unsigned long UART_BASE;
-int UART_STRIDE = 1;
+int UART_STRIDE = 4;
 #define UART_REG(offset) (volatile unsigned char *)(UART_BASE + (offset * UART_STRIDE))
 #define LSR_DR    (1 << 0)
 #define LSR_TDRQ  (1 << 5)

@@ -22,12 +22,12 @@ INCLUDES = -I$(SHARED_DIR)/include -I$(KERN_DIR)/include
 
 all: bootloader.bin kernel.bin
 
-# 1. ½sÄ¶ Shared ¼Ò²Õ (UART, FDT, String)
+# Shared
 shared_objs = $(SHARED_DIR)/src/uart.o $(SHARED_DIR)/src/fdt.o $(SHARED_DIR)/src/string.o
 $(SHARED_DIR)/src/%.o: $(SHARED_DIR)/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# 2. ½sÄ¶ Bootloader
+# Bootloader
 boot_shared_objs = $(SHARED_DIR)/src/uart_boot.o $(SHARED_DIR)/src/fdt_boot.o $(SHARED_DIR)/src/string_boot.o
 boot_objs = $(BOOT_DIR)/start.o $(BOOT_DIR)/main.o
 
@@ -43,7 +43,7 @@ bootloader.elf: $(boot_objs) $(boot_shared_objs)
 bootloader.bin: bootloader.elf
 	$(OBJCOPY) -O binary $< $@
 
-# 3. ½sÄ¶ Kernel
+# Kernel
 kern_objs = $(KERN_DIR)/src/start.o $(KERN_DIR)/src/main.o $(KERN_DIR)/src/shell.o $(KERN_DIR)/src/initrd.o $(KERN_DIR)/src/mm.o
 kernel.elf: $(kern_objs) $(shared_objs)
 	$(LD) -T $(KERN_DIR)/link.ld -o $@ $^
@@ -65,7 +65,7 @@ kernel.bin: kernel.elf
 # ------------------------------------------------------------------
 
 run: clean all
-	$(QEMU) -M virt -m 256M -kernel bootloader.bin -display none -serial pty
+	$(QEMU) -M virt -m 256M -kernel bootloader.bin -initrd initramfs.cpio -display none -serial pty
 
 clean:
 	rm -f $(BOOT_DIR)/*.o $(KERN_DIR)/src/*.o $(SHARED_DIR)/src/*.o *.elf *.bin

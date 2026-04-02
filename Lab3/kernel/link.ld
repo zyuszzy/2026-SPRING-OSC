@@ -2,7 +2,7 @@ OUTPUT_ARCH(riscv)
 ENTRY(_start)
 SECTIONS
 {
-    . = 0x82000000;
+    . = 0x20000000;
     _start = .;
     .text : { *(.text.boot) *(.text) }
     .rodata : { *(.rodata) }
