@@ -5,21 +5,29 @@ void test_alloc_1() {
     uart_puts("Testing memory allocation...\n");
     uart_puts("(1-1) --------------------------------------------------\n");
     char *ptr1 = (char *)allocate(4096);
+    mm_free_lists();
     uart_puts("(1-2) --------------------------------------------------\n");
     char *ptr2 = (char *)allocate(8000);
+    mm_free_lists();
     uart_puts("(1-3) --------------------------------------------------\n");
     char *ptr3 = (char *)allocate(4096);
+    mm_free_lists();
     uart_puts("(1-4) --------------------------------------------------\n");
     char *ptr4 = (char *)allocate(4096);
+    mm_free_lists();
 
     uart_puts("(1-5) --------------------------------------------------\n");
     free(ptr1);
+    mm_free_lists();
     uart_puts("(1-6) -------------------------------------------------\n");
     free(ptr2);
+    mm_free_lists();
     uart_puts("(1-7) --------------------------------------------------\n");
     free(ptr3);
+    mm_free_lists();
     uart_puts("(1-8) --------------------------------------------------\n");
     free(ptr4);
+    mm_free_lists();
 
     /* Test kmalloc */
     uart_puts("Testing dynamic allocator...\n");

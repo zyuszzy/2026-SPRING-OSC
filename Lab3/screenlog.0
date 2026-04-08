@@ -5,16 +5,16 @@ j...
 
 U-Boot SPL 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
 [   0.257] DDR type LPDDR4X
-[   0.275] lpddr4_silicon_init consume 18ms
-[   0.276] Change DDR data rate to 2400MT/s
+[   0.276] lpddr4_silicon_init consume 19ms
+[   0.277] Change DDR data rate to 2400MT/s
 spl: partition error
 mmc_load_image_raw_sector: mmc block read error
-[   1.101] Boot from fit configuration x1_orangepi-rv2
-[   1.103] ## Checking hash(es) for config conf_14 ... OK
+[   1.102] Boot from fit configuration x1_orangepi-rv2
+[   1.104] ## Checking hash(es) for config conf_14 ... OK
 [   1.109] ## Checking hash(es) for Image opensbi ... OK
 [   1.114] ## Checking hash(es) for Image uboot ... OK
 [   1.119] ## Checking hash(es) for Image fdt_14 ... OK
-[   1.164] 
+[   1.165] 
 
 U-Boot 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
 
@@ -29,11 +29,11 @@ U-Boot 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
 [   1.268] DCDC_REG1@dcdc1: enabling
 [   1.270] DCDC_REG3@dcdc3: enabling
 [   1.276] LDO_REG1@ldo1: enabling
-[   1.279] SWITCH_REG1@switch1: enabling
+[   1.280] SWITCH_REG1@switch1: enabling
 [   1.280] SWITCH_REG2@pwr-event: enabling
 [   1.284] SWITCH_REG3@pwr-int: enabling
 [   1.288] SWITCH_REG4@rtc-ctrl: enabling
-[   1.291] SWITCH_REG5@rtc-event: enabling
+[   1.292] SWITCH_REG5@rtc-event: enabling
 [   1.295] SWITCH_REG6@rtc-irq: enabling
 [   1.299] SWITCH_REG7@power-down: enabling
 [   1.303] SWITCH_REG8@reboot-flag: enabling
@@ -56,7 +56,7 @@ U-Boot 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
 [   1.457] pcie port id = 1, lane num = 2
 [   1.461] Now int init_puphy...
 [   1.464] waiting pll lock...
-[   1.466] Now finish init_puphy....
+[   1.467] Now finish init_puphy....
 [   1.470] pcie_dw_x1 pcie@ca400000: Unable to get phy0
 [   1.475] pcie_dw_x1 pcie@ca400000: Unable to get phy1
 [   2.581] PCIE-0: Link down
@@ -100,62 +100,62 @@ Starting the controller
 [   3.410] USB XHCI 1.10
 [   3.412] scanning bus ehci1@c0980100 for devices... 1 USB Device(s) found
 [   4.551] scanning bus dwc3@c0a00000 for devices... 3 USB Device(s) found
-[   6.078]        scanning usb for storage devices... 0 Storage Device(s) found
-[   6.082] 
+[   6.095]        scanning usb for storage devices... 0 Storage Device(s) found
+[   6.099] 
 Device 0: unknown device
-[   6.127] switch to partitions #0, OK
-[   6.128] mmc0 is current device
-[   6.147] Scanning mmc 0:1...
-[   6.200] Found U-Boot script /boot.scr
-[   6.221] 124 bytes read in 7 ms (16.6 KiB/s)
-[   6.222] ## Executing script at 2c100000
-[   6.263] 122539 bytes read in 21 ms (5.6 MiB/s)
-[   6.264] ## Loading kernel from FIT Image at 11000000 ...
-[   6.270]    Using 'config-1' configuration
-[   6.274]    Verifying Hash Integrity ... OK
-[   6.278]    Trying 'kernel' kernel subimage
-[   6.282]      Description:  Kernel Image
-[   6.286]      Type:         Kernel Image
-[   6.289]      Compression:  uncompressed
-[   6.293]      Data Start:   0x110000d0
-[   6.297]      Data Size:    5780 Bytes = 5.6 KiB
-[   6.301]      Architecture: RISC-V
-[   6.305]      OS:           Linux
-[   6.308]      Load Address: 0x00200000
-[   6.312]      Entry Point:  0x00200000
-[   6.315]    Verifying Hash Integrity ... OK
-[   6.320] ## Loading ramdisk from FIT Image at 11000000 ...
-[   6.325]    Using 'config-1' configuration
-[   6.329]    Verifying Hash Integrity ... OK
-[   6.333]    Trying 'ramdisk' ramdisk subimage
-[   6.337]      Description:  Initial Ramdisk
-[   6.341]      Type:         RAMDisk Image
-[   6.345]      Compression:  uncompressed
-[   6.349]      Data Start:   0x1101d148
-[   6.352]      Data Size:    2048 Bytes = 2 KiB
-[   6.357]      Architecture: RISC-V
-[   6.360]      OS:           Linux
-[   6.363]      Load Address: 0x46100000
-[   6.367]      Entry Point:  unavailable
-[   6.371]    Verifying Hash Integrity ... OK
-[   6.375]    Loading ramdisk from 0x1101d148 to 0x46100000
-[   6.380] ## Loading fdt from FIT Image at 11000000 ...
-[   6.385]    Using 'config-1' configuration
-[   6.389]    Verifying Hash Integrity ... OK
-[   6.393]    Trying 'fdt' fdt subimage
-[   6.397]      Description:  Flat Device Tree
-[   6.401]      Type:         Flat Device Tree
-[   6.405]      Compression:  uncompressed
-[   6.409]      Data Start:   0x11001814
-[   6.413]      Data Size:    112811 Bytes = 110.2 KiB
-[   6.417]      Architecture: RISC-V
-[   6.421]      Load Address: 0x31000000
-[   6.424]    Verifying Hash Integrity ... OK
-[   6.429]    Loading fdt from 0x11001814 to 0x31000000
-[   6.433]    Booting using the fdt blob at 0x31000000
-[   6.538]    Loading Kernel Image
-[   6.539]    Loading Ramdisk to 7dd8f000, end 7dd8f800 ... OK
-[   6.551]    Loading Device Tree to 000000007dd70000, end 000000007dd8e8aa ... OK
+[   6.144] switch to partitions #0, OK
+[   6.144] mmc0 is current device
+[   6.163] Scanning mmc 0:1...
+[   6.216] Found U-Boot script /boot.scr
+[   6.237] 124 bytes read in 7 ms (16.6 KiB/s)
+[   6.238] ## Executing script at 2c100000
+[   6.279] 122539 bytes read in 21 ms (5.6 MiB/s)
+[   6.281] ## Loading kernel from FIT Image at 11000000 ...
+[   6.286]    Using 'config-1' configuration
+[   6.290]    Verifying Hash Integrity ... OK
+[   6.294]    Trying 'kernel' kernel subimage
+[   6.298]      Description:  Kernel Image
+[   6.302]      Type:         Kernel Image
+[   6.306]      Compression:  uncompressed
+[   6.310]      Data Start:   0x110000d0
+[   6.313]      Data Size:    5780 Bytes = 5.6 KiB
+[   6.318]      Architecture: RISC-V
+[   6.321]      OS:           Linux
+[   6.324]      Load Address: 0x00200000
+[   6.328]      Entry Point:  0x00200000
+[   6.331]    Verifying Hash Integrity ... OK
+[   6.336] ## Loading ramdisk from FIT Image at 11000000 ...
+[   6.341]    Using 'config-1' configuration
+[   6.345]    Verifying Hash Integrity ... OK
+[   6.349]    Trying 'ramdisk' ramdisk subimage
+[   6.353]      Description:  Initial Ramdisk
+[   6.357]      Type:         RAMDisk Image
+[   6.361]      Compression:  uncompressed
+[   6.365]      Data Start:   0x1101d148
+[   6.369]      Data Size:    2048 Bytes = 2 KiB
+[   6.373]      Architecture: RISC-V
+[   6.376]      OS:           Linux
+[   6.380]      Load Address: 0x46100000
+[   6.383]      Entry Point:  unavailable
+[   6.387]    Verifying Hash Integrity ... OK
+[   6.391]    Loading ramdisk from 0x1101d148 to 0x46100000
+[   6.396] ## Loading fdt from FIT Image at 11000000 ...
+[   6.401]    Using 'config-1' configuration
+[   6.405]    Verifying Hash Integrity ... OK
+[   6.410]    Trying 'fdt' fdt subimage
+[   6.413]      Description:  Flat Device Tree
+[   6.417]      Type:         Flat Device Tree
+[   6.421]      Compression:  uncompressed
+[   6.425]      Data Start:   0x11001814
+[   6.429]      Data Size:    112811 Bytes = 110.2 KiB
+[   6.434]      Architecture: RISC-V
+[   6.437]      Load Address: 0x31000000
+[   6.441]    Verifying Hash Integrity ... OK
+[   6.445]    Loading fdt from 0x11001814 to 0x31000000
+[   6.450]    Booting using the fdt blob at 0x31000000
+[   6.555]    Loading Kernel Image
+[   6.556]    Loading Ramdisk to 7dd8f000, end 7dd8f800 ... OK
+[   6.568]    Loading Device Tree to 000000007dd70000, end 000000007dd8e8aa ... OK
 
 Starting kernel ...
 
@@ -163,9 +163,9 @@ Starting kernel ...
 
 Starting Bootloader Shell ...
 ===== OSC LAB3 =====
-bootloader > load' 
+bootloader > load
 Please run the Python script for loading kernel...
-Loading kernel, the Kernel Size: 0x0000000000003460
+Loading kernel, the Kernel Size: 0x0000000000003480
 Kernel loaded successfully! Jump to kernel 0x20000000 ...
 >>> DETECTED UART BASE: 0x00000000d4017000
 [MAIN] Memory Start: 0x0000000000000000
@@ -175,7 +175,7 @@ Kernel loaded successfully! Jump to kernel 0x20000000 ...
 [MAIN] DTB Start : 0x000000007dd70000
 [MAIN] DTB Size : 0x000000000001c080
 [MAIN] Reserving Memory...
-[MM] Reserved range: 0x0000000020000000 - 0x00000000200076e0
+[MM] Reserved range: 0x0000000020000000 - 0x0000000020007700
 [MM] Reserved range: 0x000000007dd70000 - 0x000000007dd8c080
 [MM] Reserved range: 0x000000007dd8f000 - 0x000000007dd8f800
 [MM] Reserved range: 0x000000007f000000 - 0x0000000080000000
@@ -217,23 +217,95 @@ Testing memory allocation...
   [+] Add page 130 at order 1. Range of pages: [130, 131]
   [+] Add page 129 at order 0. Range of pages: [129, 129]
   [Page] Allocate 0x0x0000000000080000 (page 128) at order 0.
+
+-------- Current Buddy System Status --------
+Order 0: 1 blocks (4 KB)
+Order 1: 1 blocks (8 KB)
+Order 2: 1 blocks (16 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-2) --------------------------------------------------
   [-] Remove page 130 at order 1. Range of pages: [130, 131]
   [Page] Allocate 0x0x0000000000082000 (page 130) at order 1.
+
+-------- Current Buddy System Status --------
+Order 0: 1 blocks (4 KB)
+Order 1: 0 blocks (0 KB)
+Order 2: 1 blocks (16 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-3) --------------------------------------------------
   [-] Remove page 129 at order 0. Range of pages: [129, 129]
   [Page] Allocate 0x0x0000000000081000 (page 129) at order 0.
+
+-------- Current Buddy System Status --------
+Order 0: 0 blocks (0 KB)
+Order 1: 0 blocks (0 KB)
+Order 2: 1 blocks (16 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-4) --------------------------------------------------
   [-] Remove page 132 at order 2. Range of pages: [132, 135]
   [+] Add page 134 at order 1. Range of pages: [134, 135]
   [+] Add page 133 at order 0. Range of pages: [133, 133]
   [Page] Allocate 0x0x0000000000084000 (page 132) at order 0.
+
+-------- Current Buddy System Status --------
+Order 0: 1 blocks (4 KB)
+Order 1: 1 blocks (8 KB)
+Order 2: 0 blocks (0 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-5) --------------------------------------------------
   [+] Add page 128 at order 0. Range of pages: [128, 128]
   [Page] Free 0x0x0000000000080000 (page 128) , add back to order 0.
+
+-------- Current Buddy System Status --------
+Order 0: 2 blocks (8 KB)
+Order 1: 1 blocks (8 KB)
+Order 2: 0 blocks (0 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-6) -------------------------------------------------
   [+] Add page 130 at order 1. Range of pages: [130, 131]
   [Page] Free 0x0x0000000000082000 (page 130) , add back to order 1.
+
+-------- Current Buddy System Status --------
+Order 0: 2 blocks (8 KB)
+Order 1: 2 blocks (16 KB)
+Order 2: 0 blocks (0 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-7) --------------------------------------------------
   [*] Buddy found! buddy idx: 128 for page 129 with order 0
   [-] Remove page 128 at order 0. Range of pages: [128, 128]
@@ -241,6 +313,18 @@ Testing memory allocation...
   [-] Remove page 130 at order 1. Range of pages: [130, 131]
   [+] Add page 128 at order 2. Range of pages: [128, 131]
   [Page] Free 0x0x0000000000081000 (page 129) , add back to order 2.
+
+-------- Current Buddy System Status --------
+Order 0: 1 blocks (4 KB)
+Order 1: 1 blocks (8 KB)
+Order 2: 1 blocks (16 KB)
+Order 3: 1 blocks (32 KB)
+Order 4: 1 blocks (64 KB)
+Order 5: 1 blocks (128 KB)
+Order 6: 1 blocks (256 KB)
+Order 7: 4010 blocks (2053120 KB)
+-----------------------------------------------
+
 (1-8) --------------------------------------------------
   [*] Buddy found! buddy idx: 133 for page 132 with order 0
   [-] Remove page 133 at order 0. Range of pages: [133, 133]
@@ -258,6 +342,18 @@ Testing memory allocation...
   [-] Remove page 192 at order 6. Range of pages: [192, 255]
   [+] Add page 128 at order 7. Range of pages: [128, 255]
   [Page] Free 0x0x0000000000084000 (page 132) , add back to order 7.
+
+-------- Current Buddy System Status --------
+Order 0: 0 blocks (0 KB)
+Order 1: 0 blocks (0 KB)
+Order 2: 0 blocks (0 KB)
+Order 3: 0 blocks (0 KB)
+Order 4: 0 blocks (0 KB)
+Order 5: 0 blocks (0 KB)
+Order 6: 0 blocks (0 KB)
+Order 7: 4011 blocks (2053632 KB)
+-----------------------------------------------
+
 Testing dynamic allocator...
 (2-1) --------------------------------------------------
   [-] Remove page 128 at order 7. Range of pages: [128, 255]

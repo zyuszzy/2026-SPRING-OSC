@@ -236,7 +236,7 @@ void* allocate(unsigned int size){
                 int buddy_index = current_index + (1 << current_order);
                 frames[buddy_index].order = current_order;
                 
-                list_add(&frames[buddy_index].list, &free_areas[current_order]);    // buddy ?[?Jfree ares
+                list_add(&frames[buddy_index].list, &free_areas[current_order]);
                 log_mm_range("  [+] Add", buddy_index, current_order);
             }
 
@@ -292,7 +292,6 @@ void free(void *ptr){
     int current_order = f->order;
     f->refcount = 0;
 
-    // ©¹?W§ä?i¤£?i?H?X¨Ö
     while(current_order < MAX_ORDER){
         int buddy_index = frame_index ^ (1 << current_order);
         struct frame *buddy = &frames[buddy_index];
