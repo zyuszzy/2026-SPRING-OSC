@@ -161,7 +161,7 @@ void mm_free_lists(){
 void* allocate(unsigned int size){
 
     // -------------------------------------- slab alloc -----------------------------------
-    if(size < 4096){
+    if(size <= 2048){
         int pool_index = -1;
 
         // find suitable chunk

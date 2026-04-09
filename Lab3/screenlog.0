@@ -4,158 +4,158 @@ bm:3
 j...
 
 U-Boot SPL 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
-[   0.257] DDR type LPDDR4X
-[   0.276] lpddr4_silicon_init consume 19ms
-[   0.277] Change DDR data rate to 2400MT/s
+[   0.258] DDR type LPDDR4X
+[   0.277] lpddr4_silicon_init consume 19ms
+[   0.278] Change DDR data rate to 2400MT/s
 spl: partition error
 mmc_load_image_raw_sector: mmc block read error
-[   1.102] Boot from fit configuration x1_orangepi-rv2
-[   1.104] ## Checking hash(es) for config conf_14 ... OK
-[   1.109] ## Checking hash(es) for Image opensbi ... OK
-[   1.114] ## Checking hash(es) for Image uboot ... OK
-[   1.119] ## Checking hash(es) for Image fdt_14 ... OK
-[   1.165] 
+[   1.103] Boot from fit configuration x1_orangepi-rv2
+[   1.105] ## Checking hash(es) for config conf_14 ... OK
+[   1.110] ## Checking hash(es) for Image opensbi ... OK
+[   1.115] ## Checking hash(es) for Image uboot ... OK
+[   1.121] ## Checking hash(es) for Image fdt_14 ... OK
+[   1.166] 
 
 U-Boot 2022.10ky-g89bff4a7e4 (Sep 22 2025 - 11:26:39 +0800)
 
-[   1.168] CPU:   rv64imafdcv
-[   1.171] Model: ky x1 orangepi-rv2 board
-[   1.175] DRAM:  DDR size = 8192 MB
-[   1.178] DDR size = 8192 MB
-[   1.181] DDR size = 8192 MB
-[   1.184] 8 GiB
-[   1.258] reset driver probe start 
-[   1.260] reset driver probe finish 
-[   1.268] DCDC_REG1@dcdc1: enabling
-[   1.270] DCDC_REG3@dcdc3: enabling
-[   1.276] LDO_REG1@ldo1: enabling
-[   1.280] SWITCH_REG1@switch1: enabling
-[   1.280] SWITCH_REG2@pwr-event: enabling
-[   1.284] SWITCH_REG3@pwr-int: enabling
-[   1.288] SWITCH_REG4@rtc-ctrl: enabling
-[   1.292] SWITCH_REG5@rtc-event: enabling
-[   1.295] SWITCH_REG6@rtc-irq: enabling
-[   1.299] SWITCH_REG7@power-down: enabling
-[   1.303] SWITCH_REG8@reboot-flag: enabling
-[   1.308] vcc5v-otg-regulator@vcc5v_otg: set 5000000 uV; enabling
-[   1.313] vcc3v3-pcie-regulator@vcc3v3_pcie: set 3300000 uV; enabling
-[   1.319] DDR size = 8192 MB
-[   1.325] Core:  417 devices, 30 uclasses, devicetree: board
-[   1.338] WDT:   Started PMIC_WDT with servicing (60s timeout)
-[   1.343] WDT:   Started watchdog@D4080000 with servicing (60s timeout)
-[   1.351] MMC:   sdh@d4280000: probe done.
-[   1.358] sdh@d4281000: probe done.
-[   1.358] sdh@d4280000: 0, sdh@d4281000: 2
-[   1.362] Loading Environment from MMC... sdh@d4280000: 74 clk wait timeout(100)
-[   1.433] OK
-[   1.442] Now init Rterm...
-[   1.442] pcie prot id = 1, porta_init_done = 0
-[   1.446] Now waiting portA resister tuning done...
-[   1.450] porta redonly_reg2: 00006d58
-[   1.454] pcie_rcal = 0x00006d58
-[   1.457] pcie port id = 1, lane num = 2
-[   1.461] Now int init_puphy...
-[   1.464] waiting pll lock...
-[   1.467] Now finish init_puphy....
-[   1.470] pcie_dw_x1 pcie@ca400000: Unable to get phy0
-[   1.475] pcie_dw_x1 pcie@ca400000: Unable to get phy1
-[   2.581] PCIE-0: Link down
-[   2.603] Error (-1): cannot determine file size
-[   2.604] initialize_console_log_buffer
-[   2.608] Have allocated memory for console log buffer
-[   2.613] In:    serial
-[   2.615] Out:   serial
-[   2.617] Err:   serial
-[   2.621] Default to 100kHz
-[   2.636] EEPROM: TlvInfo v1 len=38
-[   2.637] valid ethaddr: c0:74:2b:f9:17:44
-[   2.640] Cannot find TLV data: part#
-[   2.644] Cannot find TLV data: serial#
-[   2.648] Cannot find TLV data: manufacture_date
-[   2.652] Cannot find TLV data: manufacturer
-[   2.656] Cannot find TLV data: device_version
-[   2.660] Cannot find TLV data: sdk_version
-[   2.675] Found device 'hdmi@c0400500', disp_uc_priv=000000007deb5a70
-[   2.785] HDMI cannot get HPD signal
-[   2.785] ky_display_init: device 'dpu@c0340000' display won't probe (ret=-1)
-[   2.896] HDMI cannot get HPD signal
-[   2.896] display devices not found or not probed yet: -1
-[   2.901] All buttons probed successfully
-[   2.906] Read PMIC reg ab value f0
-[   2.909] Failed to get fastboot key config: -19
-[   2.913] Net:   RGMII interface
-[   2.916] eth0: ethernet@cac80000
-[   2.921] Autoboot in 0 seconds
-[   2.932] starting USB...
-[   2.932] Bus ehci1@c0980100: ehci_x1_ci ehci1@c0980100: ehci_mv_probe Enter ... 
-[   2.942] mv_usb_phy usbphy1@c09c0000: x1-ci-usb-phy-probe: Enter...
-[   2.947] ehci_x1_ci ehci1@c0980100: ehci-x1-ci: init hccr c0980100 and hcor c0980140 hc_length 64
-[   2.969] USB EHCI 1.00
-[   2.969] Bus dwc3@c0a00000: No USB maximum speed specified. Using super speed
-[   2.982] mv_usb_phy usb2phy@0xc0a30000: x1-ci-usb-phy-probe: Enter...
-[   2.986] x1_combphy phy@c0b10000: USB3 PHY init.
-[   2.990] dwc3-generic-host dwc3@c0a00000: this is a DesignWare USB3 DRD Core
-[   3.407] Register 2000140 NbrPorts 2
+[   1.170] CPU:   rv64imafdcv
+[   1.172] Model: ky x1 orangepi-rv2 board
+[   1.176] DRAM:  DDR size = 8192 MB
+[   1.180] DDR size = 8192 MB
+[   1.182] DDR size = 8192 MB
+[   1.185] 8 GiB
+[   1.259] reset driver probe start 
+[   1.262] reset driver probe finish 
+[   1.270] DCDC_REG1@dcdc1: enabling
+[   1.271] DCDC_REG3@dcdc3: enabling
+[   1.277] LDO_REG1@ldo1: enabling
+[   1.281] SWITCH_REG1@switch1: enabling
+[   1.282] SWITCH_REG2@pwr-event: enabling
+[   1.285] SWITCH_REG3@pwr-int: enabling
+[   1.289] SWITCH_REG4@rtc-ctrl: enabling
+[   1.293] SWITCH_REG5@rtc-event: enabling
+[   1.297] SWITCH_REG6@rtc-irq: enabling
+[   1.300] SWITCH_REG7@power-down: enabling
+[   1.304] SWITCH_REG8@reboot-flag: enabling
+[   1.309] vcc5v-otg-regulator@vcc5v_otg: set 5000000 uV; enabling
+[   1.314] vcc3v3-pcie-regulator@vcc3v3_pcie: set 3300000 uV; enabling
+[   1.320] DDR size = 8192 MB
+[   1.326] Core:  417 devices, 30 uclasses, devicetree: board
+[   1.339] WDT:   Started PMIC_WDT with servicing (60s timeout)
+[   1.344] WDT:   Started watchdog@D4080000 with servicing (60s timeout)
+[   1.352] MMC:   sdh@d4280000: probe done.
+[   1.359] sdh@d4281000: probe done.
+[   1.359] sdh@d4280000: 0, sdh@d4281000: 2
+[   1.364] Loading Environment from MMC... sdh@d4280000: 74 clk wait timeout(100)
+[   1.434] OK
+[   1.443] Now init Rterm...
+[   1.443] pcie prot id = 1, porta_init_done = 0
+[   1.447] Now waiting portA resister tuning done...
+[   1.452] porta redonly_reg2: 00006d58
+[   1.455] pcie_rcal = 0x00006d58
+[   1.458] pcie port id = 1, lane num = 2
+[   1.462] Now int init_puphy...
+[   1.465] waiting pll lock...
+[   1.468] Now finish init_puphy....
+[   1.471] pcie_dw_x1 pcie@ca400000: Unable to get phy0
+[   1.476] pcie_dw_x1 pcie@ca400000: Unable to get phy1
+[   2.582] PCIE-0: Link down
+[   2.604] Error (-1): cannot determine file size
+[   2.605] initialize_console_log_buffer
+[   2.609] Have allocated memory for console log buffer
+[   2.614] In:    serial
+[   2.616] Out:   serial
+[   2.618] Err:   serial
+[   2.622] Default to 100kHz
+[   2.637] EEPROM: TlvInfo v1 len=38
+[   2.638] valid ethaddr: c0:74:2b:f9:17:44
+[   2.641] Cannot find TLV data: part#
+[   2.645] Cannot find TLV data: serial#
+[   2.649] Cannot find TLV data: manufacture_date
+[   2.653] Cannot find TLV data: manufacturer
+[   2.657] Cannot find TLV data: device_version
+[   2.661] Cannot find TLV data: sdk_version
+[   2.676] Found device 'hdmi@c0400500', disp_uc_priv=000000007deb5a70
+[   2.786] HDMI cannot get HPD signal
+[   2.786] ky_display_init: device 'dpu@c0340000' display won't probe (ret=-1)
+[   2.897] HDMI cannot get HPD signal
+[   2.897] display devices not found or not probed yet: -1
+[   2.902] All buttons probed successfully
+[   2.907] Read PMIC reg ab value f0
+[   2.910] Failed to get fastboot key config: -19
+[   2.914] Net:   RGMII interface
+[   2.917] eth0: ethernet@cac80000
+[   2.922] Autoboot in 0 seconds
+[   2.933] starting USB...
+[   2.933] Bus ehci1@c0980100: ehci_x1_ci ehci1@c0980100: ehci_mv_probe Enter ... 
+[   2.943] mv_usb_phy usbphy1@c09c0000: x1-ci-usb-phy-probe: Enter...
+[   2.948] ehci_x1_ci ehci1@c0980100: ehci-x1-ci: init hccr c0980100 and hcor c0980140 hc_length 64
+[   2.970] USB EHCI 1.00
+[   2.970] Bus dwc3@c0a00000: No USB maximum speed specified. Using super speed
+[   2.983] mv_usb_phy usb2phy@0xc0a30000: x1-ci-usb-phy-probe: Enter...
+[   2.987] x1_combphy phy@c0b10000: USB3 PHY init.
+[   2.991] dwc3-generic-host dwc3@c0a00000: this is a DesignWare USB3 DRD Core
+[   3.408] Register 2000140 NbrPorts 2
 Starting the controller
 [   3.410] USB XHCI 1.10
-[   3.412] scanning bus ehci1@c0980100 for devices... 1 USB Device(s) found
-[   4.551] scanning bus dwc3@c0a00000 for devices... 3 USB Device(s) found
+[   3.413] scanning bus ehci1@c0980100 for devices... 1 USB Device(s) found
+[   4.552] scanning bus dwc3@c0a00000 for devices... 3 USB Device(s) found
 [   6.095]        scanning usb for storage devices... 0 Storage Device(s) found
 [   6.099] 
 Device 0: unknown device
 [   6.144] switch to partitions #0, OK
-[   6.144] mmc0 is current device
-[   6.163] Scanning mmc 0:1...
-[   6.216] Found U-Boot script /boot.scr
-[   6.237] 124 bytes read in 7 ms (16.6 KiB/s)
-[   6.238] ## Executing script at 2c100000
-[   6.279] 122539 bytes read in 21 ms (5.6 MiB/s)
+[   6.145] mmc0 is current device
+[   6.164] Scanning mmc 0:1...
+[   6.217] Found U-Boot script /boot.scr
+[   6.238] 124 bytes read in 7 ms (16.6 KiB/s)
+[   6.239] ## Executing script at 2c100000
+[   6.280] 122539 bytes read in 21 ms (5.6 MiB/s)
 [   6.281] ## Loading kernel from FIT Image at 11000000 ...
-[   6.286]    Using 'config-1' configuration
-[   6.290]    Verifying Hash Integrity ... OK
-[   6.294]    Trying 'kernel' kernel subimage
-[   6.298]      Description:  Kernel Image
-[   6.302]      Type:         Kernel Image
-[   6.306]      Compression:  uncompressed
+[   6.287]    Using 'config-1' configuration
+[   6.291]    Verifying Hash Integrity ... OK
+[   6.295]    Trying 'kernel' kernel subimage
+[   6.299]      Description:  Kernel Image
+[   6.303]      Type:         Kernel Image
+[   6.307]      Compression:  uncompressed
 [   6.310]      Data Start:   0x110000d0
-[   6.313]      Data Size:    5780 Bytes = 5.6 KiB
-[   6.318]      Architecture: RISC-V
-[   6.321]      OS:           Linux
-[   6.324]      Load Address: 0x00200000
-[   6.328]      Entry Point:  0x00200000
-[   6.331]    Verifying Hash Integrity ... OK
-[   6.336] ## Loading ramdisk from FIT Image at 11000000 ...
-[   6.341]    Using 'config-1' configuration
-[   6.345]    Verifying Hash Integrity ... OK
-[   6.349]    Trying 'ramdisk' ramdisk subimage
-[   6.353]      Description:  Initial Ramdisk
-[   6.357]      Type:         RAMDisk Image
-[   6.361]      Compression:  uncompressed
-[   6.365]      Data Start:   0x1101d148
-[   6.369]      Data Size:    2048 Bytes = 2 KiB
-[   6.373]      Architecture: RISC-V
-[   6.376]      OS:           Linux
+[   6.314]      Data Size:    5780 Bytes = 5.6 KiB
+[   6.319]      Architecture: RISC-V
+[   6.322]      OS:           Linux
+[   6.325]      Load Address: 0x00200000
+[   6.329]      Entry Point:  0x00200000
+[   6.332]    Verifying Hash Integrity ... OK
+[   6.337] ## Loading ramdisk from FIT Image at 11000000 ...
+[   6.342]    Using 'config-1' configuration
+[   6.346]    Verifying Hash Integrity ... OK
+[   6.350]    Trying 'ramdisk' ramdisk subimage
+[   6.354]      Description:  Initial Ramdisk
+[   6.358]      Type:         RAMDisk Image
+[   6.362]      Compression:  uncompressed
+[   6.366]      Data Start:   0x1101d148
+[   6.370]      Data Size:    2048 Bytes = 2 KiB
+[   6.374]      Architecture: RISC-V
+[   6.377]      OS:           Linux
 [   6.380]      Load Address: 0x46100000
-[   6.383]      Entry Point:  unavailable
-[   6.387]    Verifying Hash Integrity ... OK
-[   6.391]    Loading ramdisk from 0x1101d148 to 0x46100000
-[   6.396] ## Loading fdt from FIT Image at 11000000 ...
-[   6.401]    Using 'config-1' configuration
-[   6.405]    Verifying Hash Integrity ... OK
+[   6.384]      Entry Point:  unavailable
+[   6.388]    Verifying Hash Integrity ... OK
+[   6.392]    Loading ramdisk from 0x1101d148 to 0x46100000
+[   6.397] ## Loading fdt from FIT Image at 11000000 ...
+[   6.402]    Using 'config-1' configuration
+[   6.406]    Verifying Hash Integrity ... OK
 [   6.410]    Trying 'fdt' fdt subimage
-[   6.413]      Description:  Flat Device Tree
-[   6.417]      Type:         Flat Device Tree
-[   6.421]      Compression:  uncompressed
-[   6.425]      Data Start:   0x11001814
-[   6.429]      Data Size:    112811 Bytes = 110.2 KiB
+[   6.414]      Description:  Flat Device Tree
+[   6.418]      Type:         Flat Device Tree
+[   6.422]      Compression:  uncompressed
+[   6.426]      Data Start:   0x11001814
+[   6.430]      Data Size:    112811 Bytes = 110.2 KiB
 [   6.434]      Architecture: RISC-V
-[   6.437]      Load Address: 0x31000000
+[   6.438]      Load Address: 0x31000000
 [   6.441]    Verifying Hash Integrity ... OK
-[   6.445]    Loading fdt from 0x11001814 to 0x31000000
-[   6.450]    Booting using the fdt blob at 0x31000000
-[   6.555]    Loading Kernel Image
-[   6.556]    Loading Ramdisk to 7dd8f000, end 7dd8f800 ... OK
-[   6.568]    Loading Device Tree to 000000007dd70000, end 000000007dd8e8aa ... OK
+[   6.446]    Loading fdt from 0x11001814 to 0x31000000
+[   6.451]    Booting using the fdt blob at 0x31000000
+[   6.556]    Loading Kernel Image
+[   6.557]    Loading Ramdisk to 7dd8f000, end 7dd8f800 ... OK
+[   6.569]    Loading Device Tree to 000000007dd70000, end 000000007dd8e8aa ... OK
 
 Starting kernel ...
 
@@ -165,7 +165,7 @@ Starting Bootloader Shell ...
 ===== OSC LAB3 =====
 bootloader > load
 Please run the Python script for loading kernel...
-Loading kernel, the Kernel Size: 0x0000000000003480
+Loading kernel, the Kernel Size: 0x0000000000003538
 Kernel loaded successfully! Jump to kernel 0x20000000 ...
 >>> DETECTED UART BASE: 0x00000000d4017000
 [MAIN] Memory Start: 0x0000000000000000
@@ -175,7 +175,7 @@ Kernel loaded successfully! Jump to kernel 0x20000000 ...
 [MAIN] DTB Start : 0x000000007dd70000
 [MAIN] DTB Size : 0x000000000001c080
 [MAIN] Reserving Memory...
-[MM] Reserved range: 0x0000000020000000 - 0x0000000020007700
+[MM] Reserved range: 0x0000000020000000 - 0x00000000200077b0
 [MM] Reserved range: 0x000000007dd70000 - 0x000000007dd8c080
 [MM] Reserved range: 0x000000007dd8f000 - 0x000000007dd8f800
 [MM] Reserved range: 0x000000007f000000 - 0x0000000080000000
@@ -188,6 +188,7 @@ Kernel loaded successfully! Jump to kernel 0x20000000 ...
 [MM] Reserved range: 0x00000000302fc000 - 0x0000000030300000
 [MM] Reserved range: 0x0000000030300000 - 0x0000000030340000
 [MM] Reserved range: 0x0000000030340000 - 0x0000000030380000
+[MM] Reserved range: 0x0000000040000000 - 0x0000000070000000
 [MM] Reserved range: 0x000000002ff40000 - 0x0000000030000000
 [MM] Reserved range: 0x0000000020008000 - 0x0000000021408000
 [MAIN] Memory Reserved successful!
@@ -200,7 +201,7 @@ Order 3: 0 blocks (0 KB)
 Order 4: 0 blocks (0 KB)
 Order 5: 0 blocks (0 KB)
 Order 6: 0 blocks (0 KB)
-Order 7: 4011 blocks (2053632 KB)
+Order 7: 2475 blocks (1267200 KB)
 -----------------------------------------------
 
 Starting Kernel...
@@ -226,7 +227,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-2) --------------------------------------------------
@@ -241,7 +242,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-3) --------------------------------------------------
@@ -256,7 +257,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-4) --------------------------------------------------
@@ -273,7 +274,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-5) --------------------------------------------------
@@ -288,7 +289,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-6) -------------------------------------------------
@@ -303,7 +304,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-7) --------------------------------------------------
@@ -322,7 +323,7 @@ Order 3: 1 blocks (32 KB)
 Order 4: 1 blocks (64 KB)
 Order 5: 1 blocks (128 KB)
 Order 6: 1 blocks (256 KB)
-Order 7: 4010 blocks (2053120 KB)
+Order 7: 2474 blocks (1266688 KB)
 -----------------------------------------------
 
 (1-8) --------------------------------------------------
@@ -351,7 +352,7 @@ Order 3: 0 blocks (0 KB)
 Order 4: 0 blocks (0 KB)
 Order 5: 0 blocks (0 KB)
 Order 6: 0 blocks (0 KB)
-Order 7: 4011 blocks (2053632 KB)
+Order 7: 2475 blocks (1267200 KB)
 -----------------------------------------------
 
 Testing dynamic allocator...

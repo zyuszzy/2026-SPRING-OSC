@@ -223,6 +223,14 @@ void fdt_additional_reserve_mem(const void* fdt){
                         memory_early_reserve(start, start + size);
                     #endif
                 }
+                reg = (uint32_t*)fdt_getprop(fdt, node_off, "alloc-ranges", &len);
+                if(reg){
+                    uint64_t start = ((uint64_t)bswap32(reg[0]) << 32) | (uint64_t)bswap32(reg[1]);
+                    uint64_t size  = ((uint64_t)bswap32(reg[2]) << 32) | (uint64_t)bswap32(reg[3]);
+                    #ifndef BOOTLOADER
+                        memory_early_reserve(start, start + size);
+                    #endif
+                }
             }
             p += 4;
             p = (const char*)align_up(p + strlen(node_name) + 1, 4);
