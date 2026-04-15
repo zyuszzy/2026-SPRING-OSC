@@ -2,82 +2,141 @@
 # include "mm.h"
 
 void test_alloc_1() {
-    uart_puts("Testing memory allocation...\n");
-    uart_puts("(1-1) --------------------------------------------------\n");
-    char *ptr1 = (char *)allocate(4096);
-    mm_free_lists();
-    uart_puts("(1-2) --------------------------------------------------\n");
-    char *ptr2 = (char *)allocate(8000);
-    mm_free_lists();
-    uart_puts("(1-3) --------------------------------------------------\n");
-    char *ptr3 = (char *)allocate(4096);
-    mm_free_lists();
-    uart_puts("(1-4) --------------------------------------------------\n");
-    char *ptr4 = (char *)allocate(4096);
-    mm_free_lists();
+    /***************** Case 2 *****************/
 
-    uart_puts("(1-5) --------------------------------------------------\n");
-    free(ptr1);
-    mm_free_lists();
-    uart_puts("(1-6) -------------------------------------------------\n");
-    free(ptr2);
-    mm_free_lists();
-    uart_puts("(1-7) --------------------------------------------------\n");
-    free(ptr3);
-    mm_free_lists();
-    uart_puts("(1-8) --------------------------------------------------\n");
-    free(ptr4);
-    mm_free_lists();
+uart_puts("\n===== Part 1 =====\n");
 
-    /* Test kmalloc */
-    uart_puts("Testing dynamic allocator...\n");
-    uart_puts("(2-1) --------------------------------------------------\n");
-    char *kmem_ptr1 = (char *)allocate(16);
-    uart_puts("(2-2) --------------------------------------------------\n");
-    char *kmem_ptr2 = (char *)allocate(32);
-    uart_puts("(2-3) --------------------------------------------------\n");
-    char *kmem_ptr3 = (char *)allocate(64);
-    uart_puts("(2-4) --------------------------------------------------\n");
-    char *kmem_ptr4 = (char *)allocate(128);
+void *p1 = allocate(129);
+mm_free_lists();
+free(p1);
+mm_free_lists();
 
-    uart_puts("(2-5) --------------------------------------------------\n");
-    free(kmem_ptr1);
-    uart_puts("(2-6) --------------------------------------------------\n");
-    free(kmem_ptr2);
-    uart_puts("(2-7) --------------------------------------------------\n");
-    free(kmem_ptr3);
-    uart_puts("(2-8) --------------------------------------------------\n");
-    free(kmem_ptr4);
+uart_puts("\n=== Part 1 End ===\n");
 
-    uart_puts("(2-9) --------------------------------------------------\n");
-    char *kmem_ptr5 = (char *)allocate(16);
-    uart_puts("(2-10) --------------------------------------------------\n");
-    char *kmem_ptr6 = (char *)allocate(32);
+uart_puts("\n===== Part 2 =====\n");
 
-    uart_puts("(2-11) --------------------------------------------------\n");
-    free(kmem_ptr5);
-    uart_puts("(2-12) --------------------------------------------------\n");
-    free(kmem_ptr6);
+// Allocate all blocks at order 0, 1, 2 and 3
+int NUM_BLOCKS_AT_ORDER_0 = 0;  // Need modified
+int NUM_BLOCKS_AT_ORDER_1 = 0;
+int NUM_BLOCKS_AT_ORDER_2 = 0;
+int NUM_BLOCKS_AT_ORDER_3 = 0;
 
-    // Test allocate new page if the cache is not enough
-    uart_puts("(3-1) --------------------------------------------------\n");
-    void *kmem_ptr[102];
-    for (int i=0; i<100; i++) {
-        kmem_ptr[i] = (char *)allocate(128);
-    }
-    for (int i=0; i<100; i++) {
-        free(kmem_ptr[i]);
-    }
+void *ps0[NUM_BLOCKS_AT_ORDER_0];
+void *ps1[NUM_BLOCKS_AT_ORDER_1];
+void *ps2[NUM_BLOCKS_AT_ORDER_2];
+void *ps3[NUM_BLOCKS_AT_ORDER_3];
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_0; ++i) {
+    ps0[i] = allocate(4096);
+}
+mm_free_lists();
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_1; ++i) {
+    ps1[i] = allocate(8192);
+}
+mm_free_lists();
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_2; ++i) {
+    ps2[i] = allocate(16384);
+}
+mm_free_lists();
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_3; ++i) {
+    ps3[i] = allocate(32768);
+}
+mm_free_lists();
 
-    // Test exceeding the maximum size
-    char *kmem_ptr7 = (char *)allocate(MEM_SIZE + 1);
-    if (kmem_ptr7 == NULL) {
-        uart_puts("Allocation failed as expected for size > MEM_SIZE\n");
-    }
-    else {
-        uart_puts("Unexpected allocation success for size > MEM_SIZE\n");
-        free(kmem_ptr7);
-    }
+uart_puts("\n-----------\n");
+
+long MAX_BLOCK_SIZE = PAGE_SIZE * (1 << MAX_ORDER);
+
+/* **DO NOT** uncomment this section */
+void *c1, *c2, *c3, *c4, *c5, *c6, *c7, *c8, *p2, *p3, *p4, *p5, *p6, *p7;
+
+p1 = allocate(4095);
+mm_free_lists();
+free(p1);                        // 4095
+mm_free_lists();
+p1 = allocate(4095);
+mm_free_lists();
+
+c1 = allocate(1000);
+mm_free_lists();
+c2 = allocate(1023);
+mm_free_lists();
+c3 = allocate(999);
+mm_free_lists();
+c4 = allocate(1010);
+mm_free_lists();
+free(c3);                        // 999
+mm_free_lists();
+c5 = allocate(989);  
+mm_free_lists();
+c3 = allocate(88);
+mm_free_lists();
+c6 = allocate(1001);
+mm_free_lists();
+free(c3);                        // 88
+mm_free_lists();
+c7 = allocate(2045);
+mm_free_lists();
+c8 = allocate(1);
+mm_free_lists();
+
+p2 = allocate(4096);
+mm_free_lists();
+free(c8);                        // 1
+mm_free_lists();
+p3 = allocate(16000);
+mm_free_lists();
+free(p1);                        // 4095
+mm_free_lists();
+free(c7);                        // 2045
+mm_free_lists();
+p4 = allocate(4097);
+mm_free_lists();
+p5 = allocate(MAX_BLOCK_SIZE + 1);
+mm_free_lists();
+p6 = allocate(MAX_BLOCK_SIZE);
+mm_free_lists();
+free(p2);                        // 4096
+mm_free_lists();
+free(p4);                        // 4097
+mm_free_lists();
+p7 = allocate(7197);
+mm_free_lists();
+
+free(p6);                        // MAX_BLOCK_SIZE
+mm_free_lists();
+free(p3);                        // 16000
+mm_free_lists();
+free(p7);                        // 7197
+mm_free_lists();
+free(c1);                        // 1000
+mm_free_lists();
+free(c6);                        // 1001
+mm_free_lists();
+free(c2);                        // 1023
+mm_free_lists();
+free(c5);                        // 989
+mm_free_lists();
+free(c4);                        // 1010
+mm_free_lists();
+
+
+uart_puts("\n-----------\n");
+
+// Free all blocks remaining
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_0; ++i) {
+    free(ps0[i]);
+}
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_1; ++i) {
+    free(ps1[i]);
+}
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_2; ++i) {
+    free(ps2[i]);
+}
+for (int i = 0; i < NUM_BLOCKS_AT_ORDER_3; ++i) {
+    free(ps3[i]);
+}
+
+uart_puts("\n=== Part 2 End ===\n");
 }
 
 void kernel_shell(){
