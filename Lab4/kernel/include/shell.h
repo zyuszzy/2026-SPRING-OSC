@@ -4,6 +4,7 @@
 # include "uart.h"
 # include "type.h"
 # include "string.h"
+# include "initrd.h"
 
 void kernel_shell();
 

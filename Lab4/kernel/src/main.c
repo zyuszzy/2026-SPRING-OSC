@@ -46,6 +46,7 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     }
     // ====================================================================================
 
+    find_initramfs(fdt);
 
 
     kernel_shell();
