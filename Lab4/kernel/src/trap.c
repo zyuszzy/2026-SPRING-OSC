@@ -1,14 +1,35 @@
 # include "uart.h"
 # include "trap.h"
+# include "timer.h"
+# include "sbi.h"
 
 void do_trap(struct pt_regs *regs){
-    uart_puts("=== S-mode trap ===");
-    uart_puts("\nscause: "); uart_hex(regs->scause);
-    uart_puts("\nsepc: "); uart_hex(regs->sepc);
-    uart_puts("\nstval: "); uart_hex(regs->stval);
-    uart_puts("\n");
+    unsigned long scause = regs->scause;
 
-    if(regs->scause == 8){     // ecall
-        regs->sepc += 4;
+    if(scause & (1ULL << 63)){
+        unsigned long code = scause & 0xFFF;
+        switch(code){
+            case 5:
+                static int sec = 0;
+                sec += 2;
+                uart_puts("[Timer] boot time: ");
+                uart_putd(sec);
+                uart_puts("\n");
+                sbi_set_timer(get_time() + CLOCK_FREQ * 2);
+                break;
+            default:
+                uart_puts("Unknown Interrupt\n");
+                break;
+        }
+    }else{
+        uart_puts("=== S-mode trap ===");
+        uart_puts("\nscause: "); uart_hex(regs->scause);
+        uart_puts("\nsepc: "); uart_hex(regs->sepc);
+        uart_puts("\nstval: "); uart_hex(regs->stval);
+        uart_puts("\n");   
+
+        if(scause == 8){     // ecall
+            regs->sepc += 4;
+        }
     }
 }

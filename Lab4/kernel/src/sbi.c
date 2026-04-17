@@ -26,6 +26,6 @@ struct sbiret sbi_ecall(int ext,
     return ret;
 }
 
-void sbi_set_timer(uint64_t stime_value){
+void sbi_set_timer(unsigned long stime_value){
     sbi_ecall(SBI_EXT_SET_TIMER, 0, stime_value, 0, 0, 0, 0, 0);
 }

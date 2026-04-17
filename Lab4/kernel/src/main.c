@@ -81,7 +81,8 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
     // find clock freq
     fdt_timer_init(fdt);
-
+    timer_init();
+    
     uart_puts("Starting Kernel...\n");
     uart_puts("===== OSC LAB3 =====\n");
     kernel_shell();

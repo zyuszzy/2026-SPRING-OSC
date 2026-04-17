@@ -3,8 +3,8 @@
 
 extern unsigned long CLOCK_FREQ;
 
-void timer_init();
 unsigned long get_time();
+void timer_init();
 void fdt_timer_init(const void* fdt);
 
 #endif
