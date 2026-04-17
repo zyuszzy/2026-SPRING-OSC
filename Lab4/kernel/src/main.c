@@ -3,7 +3,10 @@
 # include "string.h"
 # include "fdt.h"
 # include "shell.h"
+# include "timer.h"
+# include "mm.h"
 
+boot_info_t info;
 
 void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
@@ -13,7 +16,7 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     if(bswap32(header->magic) != 0xd00dfeed)
         uart_puts("[Kernel] Error: Invalid DTB Magic Number.\n");
 
-    // ================================== §ä UART address =================================
+    // ================================== §ä UART address ======================================
     int uart_offset = fdt_path_offset(fdt, "/soc/serial");
     if(uart_offset >= 0){
         int len;
@@ -44,10 +47,42 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
             uart_puts("[Kernel] Error: 'reg' property not found.\n");
         }
     }
-    // ====================================================================================
-
-    find_initramfs(fdt);
+    // ==========================================================================================
 
 
+    // =================================== memory setup(Lab3) ===================================
+    fdt_get_boot_info((const void*)dtb_ptr, &info);
+
+    //print info
+    uart_puts("[Kernel] Memory Start: "); uart_hex(info.mem_start); uart_puts("\n");
+    uart_puts("[Kernel] Memory Size : "); uart_hex(info.mem_size); uart_puts("\n");
+    uart_puts("[Kernel] Initrd Start : "); uart_hex(info.initrd_start); uart_puts("\n");
+    uart_puts("[Kernel] Initrd End : "); uart_hex(info.initrd_end); uart_puts("\n");
+    uart_puts("[Kernel] DTB Start : "); uart_hex(info.dtb_start); uart_puts("\n");
+    uart_puts("[Kernel] DTB Size : "); uart_hex(info.dtb_size); uart_puts("\n");
+
+    // early reserve(record reserve mem)
+    memory_early_reserve((unsigned long)_start, (unsigned long)_end);   //kernel
+    memory_early_reserve(info.dtb_start, info.dtb_start + info.dtb_size);     // dtb
+    memory_early_reserve(info.initrd_start, info.initrd_end);   // initrd
+    fdt_additional_reserve_mem((const void*)dtb_ptr);       // additional reserved mem
+
+    // init & startup alloc & reserve memory
+    uart_puts("[Kernel] Reserving Memory...\n");
+    mm_init(info.mem_start, info.mem_size);
+    uart_puts("[Kernel] Memory Reserved successful!\n");
+
+    // slice usable memory into MAX_ORDER
+    mm_final_init(); 
+
+    // print num for all orders of frame
+    mm_free_lists();
+    // ========================================================================================
+
+    // find clock freq
+    fdt_timer_init(fdt);
+
+    uart_puts("Starting Kernel...\n");
+    uart_puts("===== OSC LAB3 =====\n");
     kernel_shell();
 }

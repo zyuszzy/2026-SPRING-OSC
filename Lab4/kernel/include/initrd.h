@@ -3,8 +3,6 @@
 
 # include "type.h"
 
-unsigned long initrd_start;
-unsigned long initrd_end;
 
 // CPIO header
 struct cpio_t {
@@ -24,7 +22,6 @@ struct cpio_t {
     char check[8];  
 };
 
-void find_initramfs(const void* fdt);
 void* find_user_program(const void* rd, const char* filename, unsigned int* size);
 
 #endif

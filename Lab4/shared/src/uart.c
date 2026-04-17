@@ -5,7 +5,7 @@
 # include "type.h"
 
 unsigned long UART_BASE;
-int UART_STRIDE = 4;
+int UART_STRIDE = 1;
 #define UART_REG(offset) (volatile unsigned char *)(UART_BASE + (offset * UART_STRIDE))
 #define LSR_DR    (1 << 0)
 #define LSR_TDRQ  (1 << 5)
@@ -55,7 +55,6 @@ void uart_putd(unsigned int n){
         buf[i++] = (n % 10) + '0';
         n /= 10;
     }
-    // ???L???L
     while (--i >= 0) {
         uart_putc(buf[i]);
     }

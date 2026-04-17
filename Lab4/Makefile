@@ -44,9 +44,7 @@ bootloader.bin: bootloader.elf
 	$(OBJCOPY) -O binary $< $@
 
 # Kernel
-kern_objs = $(KERN_DIR)/src/start.o $(KERN_DIR)/src/main.o $(KERN_DIR)/src/shell.o $(KERN_DIR)/src/initrd.o $(KERN_DIR)/src/mm.o
-kernel.elf: $(kern_objs) $(shared_objs)
-	$(LD) -T $(KERN_DIR)/link.ld -o $@ $^
+kern_objs = $(KERN_DIR)/src/start.o $(KERN_DIR)/src/main.o $(KERN_DIR)/src/shell.o $(KERN_DIR)/src/trap.o $(KERN_DIR)/src/initrd.o $(KERN_DIR)/src/mm.o $(KERN_DIR)/src/timer.o $(KERN_DIR)/src/sbi.o
 kernel.elf: $(kern_objs) $(shared_objs)
 	$(LD) -T $(KERN_DIR)/link.ld -o $@ $^
 
