@@ -1,6 +1,7 @@
 # include "uart.h"
 # include "trap.h"
 # include "timer.h"
+# include "plic.h"
 # include "sbi.h"
 
 void do_trap(struct pt_regs *regs){
@@ -16,6 +17,14 @@ void do_trap(struct pt_regs *regs){
                 uart_putd(sec);
                 uart_puts("\n");
                 sbi_set_timer(get_time() + CLOCK_FREQ * 2);
+                break;
+            case 9:
+                int irq = plic_claim();
+                if(irq == UART_IRQ){
+                    uart_isr();
+                }
+                if(irq)
+                    plic_complete(irq); 
                 break;
             default:
                 uart_puts("Unknown Interrupt\n");

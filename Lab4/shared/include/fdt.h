@@ -11,7 +11,7 @@
 #define FDT_END        0x00000009
 
 
-// ฉxค่ FDT header
+// offical FDT header
 struct fdt_header {
     uint32_t magic;                 // 0xd00dfeed (Big-Endian)
     uint32_t totalsize;             
@@ -39,5 +39,6 @@ int fdt_path_offset(const void* fdt, const char* path);
 const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *lenp);
 void fdt_get_boot_info(const void* fdt, boot_info_t* info);
 void fdt_additional_reserve_mem(const void* fdt);
+int fdt_node_offset_by_compatible(const void* fdt, int startoffset, const char* compatible);
 
 #endif

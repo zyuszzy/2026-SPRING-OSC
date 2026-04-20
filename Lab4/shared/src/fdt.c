@@ -1,6 +1,6 @@
 # include "fdt.h"
 # include "type.h"
-# include "uart.h"
+# include "uart_hw.h"
 # include "string.h"
 # include "mm.h"
 
@@ -152,6 +152,52 @@ const void *fdt_getprop(const void *fdt, int nodeoffset, const char *name, int *
     return NULL;
 }
 
+int fdt_node_offset_by_compatible(const void* fdt, int startoffset, const char* compatible) {
+    struct fdt_header* header = (struct fdt_header*)fdt;
+    const char* fdt_base = (const char*)fdt;
+    
+    // Find from startoffset. If -1 find from head
+    const char* p;
+    if (startoffset < 0) {
+        p = fdt_base + bswap32(header->off_dt_struct);
+    } else {
+        p = fdt_base + startoffset;
+        p += 4; 
+    }
+
+    while (1) {
+        uint32_t token = bswap32(*(uint32_t*)p);
+
+        if (token == FDT_BEGIN_NODE) {
+            int current_node_offset = (int)(p - fdt_base);
+            const char* node_name = p + 4;
+
+            int prop_len;
+            const char* prop_val = fdt_getprop(fdt, current_node_offset, "compatible", &prop_len);
+            
+            if (prop_val) {
+                if (strcmp(prop_val, compatible) == 0) {
+                    return current_node_offset;
+                }
+            }
+            p += 4;
+            p = (const char*)align_up(p + strlen(node_name) + 1, 4);
+        } else if (token == FDT_END_NODE) {
+            p += 4;
+        } else if (token == FDT_PROP) {
+            p += 4;
+            uint32_t prop_len = bswap32(*(uint32_t*)p);
+            p += 8;
+            p = (const char*)align_up(p + prop_len, 4);
+        } else if (token == FDT_END) {
+            break;
+        } else {
+            p += 4;
+        }
+    }
+    return -1;
+}
+
 void fdt_get_boot_info(const void* fdt, boot_info_t* info){
     struct fdt_header* header = (struct fdt_header*)fdt;
     info->dtb_start = (uint64_t)fdt;
@@ -198,7 +244,7 @@ void fdt_additional_reserve_mem(const void* fdt){
     int reserved_off = fdt_path_offset(fdt, "/reserved-memory");
     if (reserved_off < 0) return;
 
-    struct fdt_header* header = (struct fdt_header*)fdt;
+    // struct fdt_header* header = (struct fdt_header*)fdt;
     const char* fdt_base = (const char*)fdt;
     //const char* string_base = fdt_base + bswap32(header->off_dt_strings);
     const char* p = fdt_base + reserved_off;

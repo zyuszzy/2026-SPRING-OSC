@@ -4,11 +4,17 @@
     #define KERNEL_LOAD_ADDR 0x20000000UL
 #endif
 
-# include "uart.h"
+# include "uart_hw.h"
 # include "type.h"
 # include "string.h"
 # include "fdt.h"
 
+extern char uart_getc();
+extern void uart_putc(char c);
+extern void uart_puts(const char* s);
+extern void uart_hex(unsigned long h);
+extern void uart_putd(unsigned int n);
+extern char uart_getc_raw();
 
 // receive kernel through UART and load kernel
 void load_kernel_uart(unsigned long hartid, unsigned long dtb_ptr){

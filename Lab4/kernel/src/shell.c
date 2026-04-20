@@ -45,6 +45,8 @@ void exec(char* input){
 }
 
 void kernel_shell(){
+    uart_puts("Starting Kernel...\n");
+    uart_puts("===== OSC LAB3 =====\n");
     char input_buffer[64];
     int input_index = 0;
     

@@ -23,13 +23,13 @@ INCLUDES = -I$(SHARED_DIR)/include -I$(KERN_DIR)/include
 all: bootloader.bin kernel.bin
 
 # Shared
-shared_objs = $(SHARED_DIR)/src/uart.o $(SHARED_DIR)/src/fdt.o $(SHARED_DIR)/src/string.o
+shared_objs = $(SHARED_DIR)/src/fdt.o $(SHARED_DIR)/src/string.o
 $(SHARED_DIR)/src/%.o: $(SHARED_DIR)/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Bootloader
-boot_shared_objs = $(SHARED_DIR)/src/uart_boot.o $(SHARED_DIR)/src/fdt_boot.o $(SHARED_DIR)/src/string_boot.o
-boot_objs = $(BOOT_DIR)/start.o $(BOOT_DIR)/main.o
+boot_shared_objs = $(SHARED_DIR)/src/fdt_boot.o $(SHARED_DIR)/src/string_boot.o
+boot_objs = $(BOOT_DIR)/start.o $(BOOT_DIR)/main.o $(BOOT_DIR)/uart.o
 
 $(SHARED_DIR)/src/%_boot.o: $(SHARED_DIR)/src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -DBOOTLOADER -c $< -o $@
@@ -44,7 +44,7 @@ bootloader.bin: bootloader.elf
 	$(OBJCOPY) -O binary $< $@
 
 # Kernel
-kern_objs = $(KERN_DIR)/src/start.o $(KERN_DIR)/src/main.o $(KERN_DIR)/src/shell.o $(KERN_DIR)/src/trap.o $(KERN_DIR)/src/initrd.o $(KERN_DIR)/src/mm.o $(KERN_DIR)/src/timer.o $(KERN_DIR)/src/sbi.o
+kern_objs = $(KERN_DIR)/src/start.o $(KERN_DIR)/src/main.o $(KERN_DIR)/src/uart.o $(KERN_DIR)/src/shell.o $(KERN_DIR)/src/trap.o $(KERN_DIR)/src/initrd.o $(KERN_DIR)/src/mm.o $(KERN_DIR)/src/timer.o $(KERN_DIR)/src/sbi.o $(KERN_DIR)/src/uart.o $(KERN_DIR)/src/plic.o  
 kernel.elf: $(kern_objs) $(shared_objs)
 	$(LD) -T $(KERN_DIR)/link.ld -o $@ $^
 

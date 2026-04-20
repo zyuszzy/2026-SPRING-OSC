@@ -1,14 +1,8 @@
-// #define UART_RBR  (volatile unsigned char*)(UART_BASE + (0x0 * UART_STRIDE))
-// #define UART_THR  (volatile unsigned char*)(UART_BASE + (0x0 * UART_STRIDE))
-// #define UART_LSR  (volatile unsigned char*)(UART_BASE + (0x5 * UART_STRIDE))
-# include "uart.h"
+# include "uart_hw.h"
 # include "type.h"
 
 unsigned long UART_BASE;
 int UART_STRIDE = 1;
-#define UART_REG(offset) (volatile unsigned char *)(UART_BASE + (offset * UART_STRIDE))
-#define LSR_DR    (1 << 0)
-#define LSR_TDRQ  (1 << 5)
 
 char uart_getc() {
     while ((*UART_REG(0x5) & LSR_DR) == 0);

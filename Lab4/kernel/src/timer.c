@@ -25,10 +25,10 @@ void timer_init(){
     asm volatile("csrw sie, %0" : : "r"(sie));
 
     // sstatus.SIE
-    unsigned long sstatus;
-    asm volatile("csrr %0, sstatus" : "=r"(sstatus));
-    sstatus |= (1 << 1); 
-    asm volatile("csrw sstatus, %0" : : "r"(sstatus));
+    // unsigned long sstatus;
+    // asm volatile("csrr %0, sstatus" : "=r"(sstatus));
+    // sstatus |= (1 << 1); 
+    // asm volatile("csrw sstatus, %0" : : "r"(sstatus));
 }
 
 void fdt_timer_init(const void* fdt){

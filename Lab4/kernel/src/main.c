@@ -4,62 +4,26 @@
 # include "fdt.h"
 # include "shell.h"
 # include "timer.h"
+# include "plic.h"
 # include "mm.h"
 
 boot_info_t info;
+unsigned long boot_cpu_hartid;
 
 void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
     const void* fdt = (const void*)dtb_ptr;
+    boot_cpu_hartid = hartid;
     struct fdt_header* header = (struct fdt_header*)fdt;
     // check magic number
     if(bswap32(header->magic) != 0xd00dfeed)
         uart_puts("[Kernel] Error: Invalid DTB Magic Number.\n");
 
-    // ================================== 找 UART address ======================================
-    int uart_offset = fdt_path_offset(fdt, "/soc/serial");
-    if(uart_offset >= 0){
-        int len;
-        uint32_t* reg_prop = (uint32_t*)fdt_getprop(fdt, uart_offset, "reg", &len);
 
-        if(reg_prop){
-            uint32_t reg0 = bswap32(reg_prop[0]);
-            uint32_t reg1 = bswap32(reg_prop[1]);
-    
-            // 組合出最終位址
-            unsigned long detected_base = ((unsigned long)reg0 << 32) | reg1;
-            if (reg0 == 0) detected_base = reg1;    
-
-            UART_BASE = detected_base; 
-
-            // 判斷 STRIDE
-            if (UART_BASE == 0x10000000UL) {
-                UART_STRIDE = 1;        // QEMU
-            } else {
-                UART_STRIDE = 4;        // OrangePi
-            }
-
-            uart_puts("[Kernel] DETECTED UART BASE: ");
-            uart_hex(detected_base);
-            uart_puts("\n");
-
-        }else{
-            uart_puts("[Kernel] Error: 'reg' property not found.\n");
-        }
-    }
-    // ==========================================================================================
-
+    fdt_uart_init(fdt);
 
     // =================================== memory setup(Lab3) ===================================
     fdt_get_boot_info((const void*)dtb_ptr, &info);
-
-    //print info
-    uart_puts("[Kernel] Memory Start: "); uart_hex(info.mem_start); uart_puts("\n");
-    uart_puts("[Kernel] Memory Size : "); uart_hex(info.mem_size); uart_puts("\n");
-    uart_puts("[Kernel] Initrd Start : "); uart_hex(info.initrd_start); uart_puts("\n");
-    uart_puts("[Kernel] Initrd End : "); uart_hex(info.initrd_end); uart_puts("\n");
-    uart_puts("[Kernel] DTB Start : "); uart_hex(info.dtb_start); uart_puts("\n");
-    uart_puts("[Kernel] DTB Size : "); uart_hex(info.dtb_size); uart_puts("\n");
 
     // early reserve(record reserve mem)
     memory_early_reserve((unsigned long)_start, (unsigned long)_end);   //kernel
@@ -76,14 +40,20 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     mm_final_init(); 
 
     // print num for all orders of frame
-    mm_free_lists();
+    // mm_free_lists();
     // ========================================================================================
 
     // find clock freq
     fdt_timer_init(fdt);
     timer_init();
-    
-    uart_puts("Starting Kernel...\n");
-    uart_puts("===== OSC LAB3 =====\n");
+
+    // find PLIC_BASE
+    fdt_plic_init(fdt);
+    plic_init();
+
+    uart_init();
+
+    asm volatile("csrs sie, %0" : : "r"(1 << 9));   // sie.SEIE (External interrupt)
+    asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
     kernel_shell();
 }

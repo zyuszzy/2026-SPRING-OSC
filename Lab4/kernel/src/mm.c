@@ -42,11 +42,6 @@ void memory_early_reserve(unsigned long start, unsigned long end){
     early_res[early_res_count].start = start;
     early_res[early_res_count].end = end;
     early_res_count++;
-    /*uart_puts("[MM] Reserved range: ");
-    uart_hex(start);
-    uart_puts(" - ");
-    uart_hex(end);
-    uart_puts("\n");*/
 }
 
 void memory_reserve(unsigned long start, unsigned long size){
@@ -61,11 +56,11 @@ void memory_reserve(unsigned long start, unsigned long size){
         frames[i].refcount = 1;
     }
 
-    uart_puts("[MM] Reserved range: ");
-    uart_hex(start);
-    uart_puts(" - ");
-    uart_hex(start + size);
-    uart_puts("\n");
+    // uart_puts("[MM] Reserved range: ");
+    // uart_hex(start);
+    // uart_puts(" - ");
+    // uart_hex(start + size);
+    // uart_puts("\n");
 }
 
 void mm_init(unsigned long mem_start, unsigned long mem_size){
