@@ -170,11 +170,11 @@ void* allocate(unsigned int size){
         if(!list_empty(&chunk_pools[pool_index])){
             struct list_head *c = chunk_pools[pool_index].next;
             list_del(c);
-            uart_puts("  [Chunk] Allocate 0x");
-            uart_hex((phy_addr_t)c);
-            uart_puts(" from existing pool, chunk size ");
-            uart_putd(chunk_offsets[pool_index]);
-            uart_puts(".\n");
+            // uart_puts("  [Chunk] Allocate 0x");
+            // uart_hex((phy_addr_t)c);
+            // uart_puts(" from existing pool, chunk size ");
+            // uart_putd(chunk_offsets[pool_index]);
+            // uart_puts(".\n");
             return (void *)c;
         }
 
@@ -195,11 +195,11 @@ void* allocate(unsigned int size){
             list_add_tail(chunk, &chunk_pools[pool_index]);
         } 
 
-        uart_puts("  [Chunk] Allocate 0x");
-        uart_hex((phy_addr_t)new_frame);
-        uart_puts(" from New Page(sliced), chunk size ");
-        uart_putd(chunk_offsets[pool_index]);
-        uart_puts(".\n");
+        // uart_puts("  [Chunk] Allocate 0x");
+        // uart_hex((phy_addr_t)new_frame);
+        // uart_puts(" from New Page(sliced), chunk size ");
+        // uart_putd(chunk_offsets[pool_index]);
+        // uart_puts(".\n");
         return (void *)new_frame;
     }
 
@@ -222,7 +222,7 @@ void* allocate(unsigned int size){
             list_del(current_list_head);
             struct frame *current_frame = list_entry(current_list_head, struct frame, list);
             int current_index = current_frame - frames;       // (current_frame -frames)=PFN
-            log_mm_range("  [-] Remove", current_index, current_order);
+            // log_mm_range("  [-] Remove", current_index, current_order);
 
 
             // split
@@ -232,20 +232,20 @@ void* allocate(unsigned int size){
                 frames[buddy_index].order = current_order;
                 
                 list_add(&frames[buddy_index].list, &free_areas[current_order]);
-                log_mm_range("  [+] Add", buddy_index, current_order);
+                // log_mm_range("  [+] Add", buddy_index, current_order);
             }
 
             current_frame->order = target_order;
             current_frame->refcount = 1; 
 
             // print out final reuslt
-            uart_puts("  [Page] Allocate 0x");
-            uart_hex(current_frame->addr);
-            uart_puts(" (page ");
-            uart_putd((current_frame->addr - MEM_START)/PAGE_SIZE);
-            uart_puts(") at order ");
-            uart_putd(target_order);
-            uart_puts(".\n");
+            // uart_puts("  [Page] Allocate 0x");
+            // uart_hex(current_frame->addr);
+            // uart_puts(" (page ");
+            // uart_putd((current_frame->addr - MEM_START)/PAGE_SIZE);
+            // uart_puts(") at order ");
+            // uart_putd(target_order);
+            // uart_puts(".\n");
 
 
             return (void *)current_frame->addr;     
@@ -275,11 +275,11 @@ void free(void *ptr){
         }
         list_add(chunk, &chunk_pools[pool_index]);
 
-        uart_puts("  [Chunk] Free 0x");
-        uart_hex(addr);
-        uart_puts(" at chunck size ");
-        uart_putd(f->chunk_size);
-        uart_puts(".\n");
+        // uart_puts("  [Chunk] Free 0x");
+        // uart_hex(addr);
+        // uart_puts(" at chunck size ");
+        // uart_putd(f->chunk_size);
+        // uart_puts(".\n");
         return;
     }
 
@@ -294,16 +294,16 @@ void free(void *ptr){
         if(buddy->ischunk || buddy->refcount == 1 || buddy->order != current_order)
             break;
 
-        uart_puts("  [*] Buddy found! buddy idx: ");
-        uart_putd(buddy_index);
-        uart_puts(" for page ");
-        uart_putd(frame_index);
-        uart_puts(" with order ");
-        uart_putd(current_order);
-        uart_puts("\n");
+        // uart_puts("  [*] Buddy found! buddy idx: ");
+        // uart_putd(buddy_index);
+        // uart_puts(" for page ");
+        // uart_putd(frame_index);
+        // uart_puts(" with order ");
+        // uart_putd(current_order);
+        // uart_puts("\n");
 
         list_del(&buddy->list);
-        log_mm_range("  [-] Remove", buddy_index, current_order);
+        // log_mm_range("  [-] Remove", buddy_index, current_order);
 
         if(buddy_index < frame_index){
             frame_index = buddy_index;
@@ -315,14 +315,14 @@ void free(void *ptr){
     }
 
     list_add(&f->list, &free_areas[current_order]);
-    log_mm_range("  [+] Add", frame_index, current_order);
+    // log_mm_range("  [+] Add", frame_index, current_order);
 
     // print out final result
-    uart_puts("  [Page] Free 0x");
-    uart_hex(addr);
-    uart_puts(" (page ");
-    uart_putd((addr - MEM_START)/PAGE_SIZE);
-    uart_puts(") , add back to order ");
-    uart_putd(current_order);
-    uart_puts(".\n");
+    // uart_puts("  [Page] Free 0x");
+    // uart_hex(addr);
+    // uart_puts(" (page ");
+    // uart_putd((addr - MEM_START)/PAGE_SIZE);
+    // uart_puts(") , add back to order ");
+    // uart_putd(current_order);
+    // uart_puts(".\n");
 }

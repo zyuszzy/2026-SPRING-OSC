@@ -2,6 +2,7 @@
 # include "string.h"
 # include "uart.h"
 # include "initrd.h"
+# include "timer.h"
 # include "mm.h"
 # include "fdt.h"
 
@@ -44,6 +45,28 @@ void exec(char* input){
     }
 }
 
+void settimeout(char *input){
+    // only type command
+    if(strcmp(input, "setTimeout") == 0 || strcmp(input, "setTimeout ") == 0){
+        uart_puts("Usage: setTimeout <SEC> <MSG>\n");
+        return;
+    }
+
+    char *sec_ptr = input + 11;
+    char *msg_ptr = sec_ptr;
+    while(*msg_ptr != ' ' && *msg_ptr != '\0'){
+        msg_ptr++;
+    }
+
+    if(*msg_ptr == ' '){
+        *msg_ptr = '\0';    // delete ' ', then sec_ptr become a string
+        msg_ptr++;
+        do_setTimeout(sec_ptr, msg_ptr);
+    }else{
+        uart_puts("Usage: setTimeout <SECONDS> <MESSAGE>\n");
+    }
+}
+
 void kernel_shell(){
     uart_puts("Starting Kernel...\n");
     uart_puts("===== OSC LAB3 =====\n");
@@ -79,9 +102,13 @@ void kernel_shell(){
         if(strcmp(input_buffer, "help") == 0){
             uart_puts("Available commands:\n");
             uart_puts("  exec <User program name>  - run user program.\n");
+            uart_puts("  setTimeout <SEC> <MSG> - print MSG after SEC seconds.\n");
         }else if(strncmp(input_buffer, "exec", 4) == 0){        // If exec, goto advanced judge
             exec(input_buffer);
-        }else{
+        }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
+            settimeout(input_buffer);
+        }
+        else{
             uart_puts("Unknown command: ");
             uart_puts(input_buffer);
             uart_puts("\nUse help to get commands.\n");
