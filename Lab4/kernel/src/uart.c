@@ -85,8 +85,8 @@ static inline void restore_irq(unsigned long sstatus){
 
 
 void uart_init(){
-    *UART_REG(0x1) = 1;     // UART_IER RX(bit 0)
-    *UART_REG(0x4) = (1 << 3);       // Enable UART interrupt
+    *UART_REG(0x1) |= 1;     // UART_IER RX(bit 0)
+    *UART_REG(0x4) |= (1 << 3);       // Enable UART interrupt
 }
 
 void uart_isr(){
@@ -153,6 +153,11 @@ void uart_putc(char c){
     tx_buf.buffer[tx_buf.head] = c;
     tx_buf.head = (tx_buf.head + 1) % RING_BUF_SIZE;
 
+    if ((*UART_REG(0x5) & LSR_TDRQ) && !is_buf_empty(&tx_buf)) {
+        *UART_REG(0x0) = tx_buf.buffer[tx_buf.tail];
+        tx_buf.tail = (tx_buf.tail + 1) % RING_BUF_SIZE;
+    }
+
     *UART_REG(0x1) |= (1 << 1);     // open TX interrupt
     restore_irq(s);
     // ------------ Critical section End -----------   
@@ -181,4 +186,39 @@ void uart_putd(unsigned int n){
     }
     while(--i >= 0) 
         uart_putc(buf[i]);
+}
+
+
+// ---------------------------------------------------------------------------------------------
+void uart_putc_pol(char c) {
+    if (c == '\n') uart_putc_pol('\r');
+    
+    while (!(*UART_REG(0x5) & (1 << 5))); 
+    *UART_REG(0x0) = c;
+}
+void uart_puts_pol(const char* s) {
+    while (*s) uart_putc_pol(*s++);
+}
+void uart_hex_pol(unsigned long h) {
+    uart_puts_pol("0x");
+    for (int i = 60; i >= 0; i -= 4) {
+        unsigned long digit = (h >> i) & 0xf;
+        if (digit < 10) uart_putc_pol('0' + digit);
+        else uart_putc_pol('a' + (digit - 10));
+    }
+}
+void uart_putd_pol(unsigned int n) {
+    if (n == 0) {
+        uart_putc_pol('0');
+        return;
+    }
+    char buf[16];
+    int i = 0;
+    while (n > 0) {
+        buf[i++] = (n % 10) + '0';
+        n /= 10;
+    }
+    while (--i >= 0) {
+        uart_putc_pol(buf[i]);
+    }
 }

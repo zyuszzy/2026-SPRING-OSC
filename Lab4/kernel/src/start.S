@@ -11,6 +11,7 @@ clear_bss:
 clear_bss_done:
     la a2, handle_exception
     csrw stvec, a2
+    csrw sscratch, zero
     la sp, _end
     tail start_kernel
 

@@ -59,7 +59,7 @@ void shell(unsigned long hartid, unsigned long dtb_ptr){
     int input_index = 0;
 
     uart_puts("\nStarting Bootloader Shell ...\n");
-    uart_puts("===== OSC LAB3 =====\n");
+    uart_puts("===== OSC LAB4 =====\n");
 
     while(1){
         uart_puts("bootloader > ");
@@ -131,7 +131,11 @@ void main(unsigned long hartid, unsigned long dtb_ptr){      // a0:hartid a1:dtb
 
             UART_BASE = detected_base;
             __asm__ volatile ("fence rw, rw"); // 確保之前的寫入先完成，後續讀取再開始
-
+            if (UART_BASE == 0x10000000UL) {
+                UART_STRIDE = 1;        // QEMU
+            } else {
+                UART_STRIDE = 4;        // OrangePi
+            }
             uart_puts(">>> DETECTED UART BASE: ");
             uart_hex(detected_base);
             uart_puts("\n");

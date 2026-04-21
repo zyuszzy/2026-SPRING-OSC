@@ -19,8 +19,9 @@ void do_trap(struct pt_regs *regs){
                 if(irq == UART_IRQ){
                     uart_isr();
                 }
-                if(irq)
+                if(irq > 0){
                     plic_complete(irq); 
+                }
                 break;
             default:
                 uart_puts("Unknown Interrupt\n");

@@ -172,6 +172,11 @@ int fdt_node_offset_by_compatible(const void* fdt, int startoffset, const char* 
             int current_node_offset = (int)(p - fdt_base);
             const char* node_name = p + 4;
 
+            if (*node_name == '\0') {
+                p += 4;
+                p = (const char*)align_up(p + 1, 4);
+                continue;
+            }
             int prop_len;
             const char* prop_val = fdt_getprop(fdt, current_node_offset, "compatible", &prop_len);
             

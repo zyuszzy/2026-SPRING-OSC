@@ -19,8 +19,9 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     if(bswap32(header->magic) != 0xd00dfeed)
         uart_puts("[Kernel] Error: Invalid DTB Magic Number.\n");
 
-
     fdt_uart_init(fdt);
+    fdt_timer_init(fdt); // find clock freq
+    fdt_plic_init(fdt);   // find PLIC_BASE
 
     // =================================== memory setup(Lab3) ===================================
     fdt_get_boot_info((const void*)dtb_ptr, &info);
@@ -32,9 +33,9 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     fdt_additional_reserve_mem((const void*)dtb_ptr);       // additional reserved mem
 
     // init & startup alloc & reserve memory
-    uart_puts("[Kernel] Reserving Memory...\n");
+    // uart_puts("[Kernel] Reserving Memory...\n");
     mm_init(info.mem_start, info.mem_size);
-    uart_puts("[Kernel] Memory Reserved successful!\n");
+    // uart_puts("[Kernel] Memory Reserved successful!\n");
 
     // slice usable memory into MAX_ORDER
     mm_final_init(); 
@@ -43,17 +44,17 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     // mm_free_lists();
     // ========================================================================================
 
-    // find clock freq
-    fdt_timer_init(fdt);
-    timer_init();
-
-    // find PLIC_BASE
-    fdt_plic_init(fdt);
-    plic_init();
-
+    
     uart_init();
+    timer_init();
+    plic_init();
+    uart_puts_pol("[Debug] Detected UART_IRQ: ");
+    uart_putd_pol(UART_IRQ);
+    uart_puts_pol("\n");
 
-    asm volatile("csrs sie, %0" : : "r"(1 << 9));   // sie.SEIE (External interrupt)
+    unsigned long sie_mask = (1 << 9) | (1 << 5);       // (1 <<9):sie.SEIE (External interrupt)  //(1 << 5):// sie.STIE(open accept timer inerrupt)
+    asm volatile("csrs sie, %0" : : "r"(sie_mask));
     asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
+
     kernel_shell();
 }

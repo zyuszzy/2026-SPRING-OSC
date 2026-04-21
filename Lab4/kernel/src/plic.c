@@ -18,9 +18,9 @@ void fdt_plic_init(const void* fdt) {
         const uint32_t *reg = fdt_getprop(fdt, node, "reg", &len);
         if (reg) {
             PLIC_BASE = ((uint64_t)bswap32(reg[0]) << 32) | bswap32(reg[1]);
-            uart_puts("[Kernel] DETECTED PLIC at: ");
-            uart_hex(PLIC_BASE);
-            uart_puts("\n");
+            // uart_puts("[Kernel] DETECTED PLIC at: ");
+            // uart_hex(PLIC_BASE);
+            // uart_puts("\n");
         }
     } else {
         uart_puts("[Error] Could not find PLIC in FDT!\n");
@@ -29,7 +29,7 @@ void fdt_plic_init(const void* fdt) {
 
 void plic_init() {
     *(volatile unsigned int*)PLIC_PRIORITY(UART_IRQ) = 1;    // (1) Set UART interrupt priority
-    *(volatile unsigned int*)PLIC_ENABLE(boot_cpu_hartid) = (1 << UART_IRQ);      // tell PLIC, hart X can receive interrupt from UART;
+    *(volatile unsigned int*)PLIC_ENABLE(boot_cpu_hartid, UART_IRQ) = (1 << UART_IRQ);      // tell PLIC, hart X can receive interrupt from UART;
     *(volatile unsigned int*)PLIC_THRESHOLD(boot_cpu_hartid) = 0;    // (3) Set threshold for the boot hart
 }
 

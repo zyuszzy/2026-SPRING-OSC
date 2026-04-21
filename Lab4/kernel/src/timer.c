@@ -11,6 +11,7 @@ static struct timer_event* time_head = NULL;
 // record time event's print info
 struct timeout_info {
     char msg[64];
+    unsigned long start_time;   // when instruction exec time
 };
 
 unsigned long get_time(){
@@ -20,21 +21,7 @@ unsigned long get_time(){
 }
 
 void timer_init(){
-    unsigned long target = get_time() + (CLOCK_FREQ)*2;     // 2secs
-    sbi_set_timer(target);
-
-    // sie.STIE
-    // open accept timer inerrupt
-    unsigned long sie;
-    asm volatile("csrr %0, sie" : "=r"(sie));
-    sie |= (1 << 5); 
-    asm volatile("csrw sie, %0" : : "r"(sie));
-
-    // sstatus.SIE
-    // unsigned long sstatus;
-    // asm volatile("csrr %0, sstatus" : "=r"(sstatus));
-    // sstatus |= (1 << 1); 
-    // asm volatile("csrw sstatus, %0" : : "r"(sstatus));
+    sbi_set_timer(-1ULL);
 }
 
 void fdt_timer_init(const void* fdt){
@@ -44,9 +31,9 @@ void fdt_timer_init(const void* fdt){
         uint32_t* prop = (uint32_t*)fdt_getprop(fdt, cpus_offset, "timebase-frequency", &len);
         if(prop){
             CLOCK_FREQ = bswap32(*prop);
-            uart_puts("[Kernel] DETECTED Timer Frequency: ");
-            uart_putd(CLOCK_FREQ);
-            uart_puts(" Hz\n");
+            // uart_puts("[Kernel] DETECTED Timer Frequency: ");
+            // uart_putd(CLOCK_FREQ);
+            // uart_puts(" Hz\n");
         }
     }
 }
@@ -86,6 +73,13 @@ void add_timer(void (*callback)(void*), void* arg, int sec){
 // execute time event's print out
 void timeout_callback(void* arg){
     struct timeout_info *info = (struct timeout_info *)arg;
+    unsigned long now = get_time();
+    uart_puts(" Command Executed Time: ");
+    uart_putd(info->start_time / CLOCK_FREQ);
+    uart_puts(" s /");
+    uart_puts(" Current Time: ");
+    uart_putd(now / CLOCK_FREQ);
+    uart_puts(" s / ");
     uart_puts(info->msg);
     uart_puts("\n");
     free(info);
@@ -107,6 +101,7 @@ void do_setTimeout(char* sec_ptr, char* msg_ptr){
         i++;
     }
     info->msg[i] = '\0';
+    info->start_time = get_time();
     add_timer(timeout_callback, (void*)info, sec);
 }
 

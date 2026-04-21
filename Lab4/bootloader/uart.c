@@ -2,7 +2,7 @@
 # include "type.h"
 
 unsigned long UART_BASE;
-int UART_STRIDE = 1;
+int UART_STRIDE;
 
 char uart_getc() {
     while ((*UART_REG(0x5) & LSR_DR) == 0);
