@@ -3,6 +3,7 @@
 # include "uart.h"
 # include "string.h"
 # include "fdt.h"
+# include "task.h"
 # include "sbi.h"
 
 unsigned long CLOCK_FREQ;
@@ -108,17 +109,13 @@ void do_setTimeout(char* sec_ptr, char* msg_ptr){
 void timer_event_handler(){
     unsigned long now = get_time();
 
-    asm volatile("csrci sstatus, 1 << 1");     //disable interrupt
     while(time_head != NULL && time_head->expire_time <= now){
         struct timer_event* event = time_head;
         time_head = time_head->next;
 
-        asm volatile("csrsi sstatus, 1 << 1");     // enable interrupt
-        event->callback(event->arg);
-        asm volatile("csrci sstatus, 1 << 1");     // disable interrupt
+        task_add((task_func_t)event->callback, event->arg, 0);
 
         free(event);
-        now = get_time();
     }
 
     if(time_head != NULL){
@@ -126,5 +123,4 @@ void timer_event_handler(){
     }else{
         sbi_set_timer(-1ULL);
     }
-    asm volatile("csrsi sstatus, 1 << 1");     // enable interrupt
 }

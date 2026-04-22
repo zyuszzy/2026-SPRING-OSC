@@ -1,6 +1,8 @@
 #include "uart.h"
 #include "uart_hw.h"
 #include "string.h"
+#include "task.h"
+#include "shell.h"
 #include "type.h"
 
 /******************************************/
@@ -63,7 +65,7 @@ void fdt_uart_init(const void* fdt){
     }
 }
 
-static ring_buffer_t rx_buf = { .head = 0, .tail = 0 };
+ring_buffer_t rx_buf = { .head = 0, .tail = 0 };
 static ring_buffer_t tx_buf = { .head = 0, .tail = 0 };
 
 static inline int is_buf_empty(ring_buffer_t *b) {
@@ -72,7 +74,6 @@ static inline int is_buf_empty(ring_buffer_t *b) {
 static inline int is_buf_full(ring_buffer_t *b) {
     return ((b->head + 1) % RING_BUF_SIZE == b->tail);
 }
-
 static inline unsigned long disable_irq(){
     unsigned long sstatus;
     asm volatile("csrr %0, sstatus" : "=r"(sstatus));
@@ -89,6 +90,10 @@ void uart_init(){
     *UART_REG(0x4) |= (1 << 3);       // Enable UART interrupt
 }
 
+int uart_is_readable() {
+    return !is_buf_empty(&rx_buf);
+}
+
 void uart_isr(){
     // Read buffer
     while(*UART_REG(0x5) & LSR_DR){
@@ -99,6 +104,7 @@ void uart_isr(){
             rx_buf.head = (rx_buf.head + 1) % RING_BUF_SIZE;
         }
     }
+    task_add((task_func_t)shell_task_handler, NULL, 1);
 
     // write buffer
     if(*UART_REG(0x5) & LSR_TDRQ){      // if transmiter empty
@@ -135,7 +141,20 @@ char uart_getc(){
     char c = uart_getc_raw();
     return (c == '\r') ? '\n' : c;
 }
+int uart_getc_nonblocking(char *ptr) {
+    unsigned long s = disable_irq();
+    int status = 0;
 
+    if (rx_buf.head != rx_buf.tail) {
+        *ptr = rx_buf.buffer[rx_buf.tail];
+        if(*ptr == '\r') *ptr = '\n';
+        rx_buf.tail = (rx_buf.tail + 1) % RING_BUF_SIZE;
+        status = 1; 
+    }
+
+    restore_irq(s);
+    return status; 
+}
 
 void uart_putc(char c){
     if(c == '\n')

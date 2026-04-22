@@ -7,6 +7,8 @@
 # include "fdt.h"
 
 extern boot_info_t info;
+static char input_buffer[64];
+static int input_index = 0;
 
 void exec(char* input){
     
@@ -40,7 +42,9 @@ void exec(char* input){
         asm volatile("csrw sstatus, %0" : : "r"(sstatus));
         asm volatile("sret");
     }else{
-        uart_puts("exec: file not found.\n");
+        uart_puts("exec: ");
+        uart_puts(input);
+        uart_puts("file not found.\n");
         return;
     }
 }
@@ -67,51 +71,55 @@ void settimeout(char *input){
     }
 }
 
-void kernel_shell(){
-    uart_puts("Starting Kernel...\n");
-    uart_puts("===== OSC LAB4 =====\n");
-    char input_buffer[64];
-    int input_index = 0;
-    
-    // read user input
-    while(1){
-        uart_puts("opi-rv2> ");
-        input_index = 0;
-
-        // get all line input
-        while(1){
-            char input_c = uart_getc();
-            if(input_c == '\b' || input_c == 127){
-                if(input_index > 0){
-                    input_index--;
-                    uart_puts("\b \b"); 
-                }
-                continue;
-            }
-
-            uart_putc(input_c);
-
-            if(input_c == '\n'){
-                input_buffer[input_index] = '\0';
-                break;
-            }else if(input_index < 63){
-                input_buffer[input_index++] = input_c;
-            }
-        }
-
-        if(strcmp(input_buffer, "help") == 0){
+void execute_command(char* input_buffer){
+    if(strcmp(input_buffer, "help") == 0){
             uart_puts("Available commands:\n");
             uart_puts("  exec <User program name>  - run user program.\n");
             uart_puts("  setTimeout <SEC> <MSG> - print MSG after SEC seconds.\n");
-        }else if(strncmp(input_buffer, "exec", 4) == 0){        // If exec, goto advanced judge
-            exec(input_buffer);
-        }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
-            settimeout(input_buffer);
+    }else if(strncmp(input_buffer, "exec", 4) == 0){        // If exec, goto advanced judge
+        exec(input_buffer);
+    }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
+        settimeout(input_buffer);
+    }
+    else{
+        uart_puts("Unknown command: ");
+        uart_puts(input_buffer);
+        uart_puts("\nUse help to get commands.\n");
+    }
+}
+
+void shell_task_handler(void* data){
+
+    char input_c;
+    while(uart_getc_nonblocking(&input_c)){
+        if(input_c == '\b' || input_c == 127){
+            if(input_index > 0){
+                input_index--;
+                uart_puts("\b \b");
+            }
+            continue;
         }
-        else{
-            uart_puts("Unknown command: ");
-            uart_puts(input_buffer);
-            uart_puts("\nUse help to get commands.\n");
+
+        uart_putc(input_c);
+
+        if(input_c == '\n' || input_c == '\r'){
+            if (input_index > 0) { 
+                input_buffer[input_index] = '\0'; 
+                input_index = 0;
+                execute_command(input_buffer);
+                uart_puts("opi-rv2> ");
+            }
+            continue;
+        }
+        if(input_index < 63 && input_c >= 32 && input_c <= 126){
+            input_buffer[input_index++] = input_c;
         }
     }
+}
+
+void shell_init(){
+    uart_puts("Starting Kernel...\n");
+    uart_puts("===== OSC LAB4 =====\n");
+    uart_puts("opi-rv2> ");
+    input_index = 0;
 }

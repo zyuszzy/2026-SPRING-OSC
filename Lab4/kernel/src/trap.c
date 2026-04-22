@@ -5,7 +5,10 @@
 # include "sbi.h"
 # include "mm.h"
 
+int nested_level = 0;
+
 void do_trap(struct pt_regs *regs){
+    nested_level++;
     unsigned long scause = regs->scause;
 
     if(scause & (1ULL << 63)){
@@ -27,6 +30,15 @@ void do_trap(struct pt_regs *regs){
                 uart_puts("Unknown Interrupt\n");
                 break;
         }
+        asm volatile("csrsi sstatus, 1 << 1");  // enable interrupt
+        /*if (nested_level > 0) {
+            uart_puts_pol("[Debug] Nested Interrupt! Level: ");
+            uart_putd_pol(nested_level);
+            uart_puts_pol("\n"); 
+        }*/
+        
+        task_run_single(); 
+        asm volatile("csrci sstatus, 1 << 1");  // disable interrupt
     }else{
         uart_puts("=== S-mode trap ===");
         uart_puts("\nscause: "); uart_hex(regs->scause);
@@ -38,4 +50,8 @@ void do_trap(struct pt_regs *regs){
             regs->sepc += 4;
         }
     }
+
+
+    nested_level--;
+
 }

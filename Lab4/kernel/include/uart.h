@@ -15,15 +15,21 @@ typedef struct{
     volatile int tail;   // for write
 } ring_buffer_t;
 
+extern ring_buffer_t rx_buf;
+
 char uart_getc();
 void uart_putc(char c);
 void uart_puts(const char* s);
 void uart_hex(unsigned long h);
 void uart_putd(unsigned int n);
 char uart_getc_raw();
+int uart_is_readable();
 void fdt_uart_init(const void* fdt);
+
 void uart_putc_pol(char c);
 void uart_puts_pol(const char* s);
+void uart_hex_pol(unsigned long h);
+void uart_putd_pol(unsigned int n);
 
 void uart_init();
 void uart_isr();

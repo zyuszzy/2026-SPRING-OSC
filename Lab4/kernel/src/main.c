@@ -4,6 +4,7 @@
 # include "fdt.h"
 # include "shell.h"
 # include "timer.h"
+# include "task.h"
 # include "plic.h"
 # include "mm.h"
 
@@ -56,5 +57,7 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     asm volatile("csrs sie, %0" : : "r"(sie_mask));
     asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
 
-    kernel_shell();
+    shell_init(); 
+
+    task_run();
 }
