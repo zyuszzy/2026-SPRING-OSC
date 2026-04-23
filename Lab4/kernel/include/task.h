@@ -1,14 +1,14 @@
 #ifndef TASK_H
 #define TASK_H
 
-typedef void (*task_func_t)(void*);
+typedef void (*task_callback_t)(void *arg);
 typedef struct {
-    task_func_t func;    
-    void* data;          
-    int priority;       
+    task_callback_t func;
+    void *data;
+    int priority;
 } task_t;
 
-void task_add(task_func_t func, void* data, int priority);
+void add_task(task_callback_t callback, void *arg, int priority);
 void task_run();
 void task_init();
 void task_run_single();

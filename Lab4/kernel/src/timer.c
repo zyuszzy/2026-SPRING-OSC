@@ -113,7 +113,7 @@ void timer_event_handler(){
         struct timer_event* event = time_head;
         time_head = time_head->next;
 
-        task_add((task_func_t)event->callback, event->arg, 0);
+        add_task((task_callback_t)event->callback, event->arg, -1);
 
         free(event);
     }

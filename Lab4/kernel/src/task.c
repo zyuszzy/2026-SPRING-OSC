@@ -19,7 +19,7 @@ void task_init(){
     task_count = 0;
 }
 
-void task_add(task_func_t func, void* data, int priority){
+void add_task(task_callback_t callback, void *arg, int priority){
 
     // ----------------------- Critical section ---------------------
     unsigned long s = disable_irq(); 
@@ -37,8 +37,8 @@ void task_add(task_func_t func, void* data, int priority){
         i--;
     }
 
-    task_queue[i + 1].func = func;
-    task_queue[i + 1].data = data;
+    task_queue[i + 1].func = callback;
+    task_queue[i + 1].data = arg;
     task_queue[i + 1].priority = priority;   
     task_count++; 
 

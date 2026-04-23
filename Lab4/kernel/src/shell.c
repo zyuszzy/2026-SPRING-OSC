@@ -10,6 +10,13 @@ extern boot_info_t info;
 static char input_buffer[64];
 static int input_index = 0;
 
+void test_task_cb(void *arg) {
+    uart_puts("[Task] Executing Priority ");
+    uart_puts((char*)arg);
+    uart_puts("\n");
+}
+
+
 void exec(char* input){
     
     // only type exec or didn't type program namm
@@ -76,10 +83,15 @@ void execute_command(char* input_buffer){
             uart_puts("Available commands:\n");
             uart_puts("  exec <User program name>  - run user program.\n");
             uart_puts("  setTimeout <SEC> <MSG> - print MSG after SEC seconds.\n");
+            uart_puts("  test - demo test.\n");
     }else if(strncmp(input_buffer, "exec", 4) == 0){        // If exec, goto advanced judge
         exec(input_buffer);
     }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
         settimeout(input_buffer);
+    }else if(strcmp(input_buffer, "test") == 0){
+        add_task(test_task_cb, "3", 3);
+        add_task(test_task_cb, "1", 1);
+        add_task(test_task_cb, "2", 2);
     }
     else{
         uart_puts("Unknown command: ");

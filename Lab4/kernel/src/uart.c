@@ -104,7 +104,7 @@ void uart_isr(){
             rx_buf.head = (rx_buf.head + 1) % RING_BUF_SIZE;
         }
     }
-    task_add((task_func_t)shell_task_handler, NULL, 1);
+    add_task((task_callback_t)shell_task_handler, NULL, 0);
 
     // write buffer
     if(*UART_REG(0x5) & LSR_TDRQ){      // if transmiter empty
