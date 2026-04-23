@@ -21,8 +21,19 @@ unsigned long get_time(){
     return n;
 }
 
+void periodic_boot_time_task(void *arg) {
+    unsigned long now_tick = get_time();
+    unsigned long boot_seconds = now_tick / CLOCK_FREQ;
+
+    uart_puts("boot time: ");
+    uart_putd((unsigned int)boot_seconds);
+    uart_puts("\n");
+
+    add_timer(periodic_boot_time_task, NULL, 2);
+}
+
 void timer_init(){
-    sbi_set_timer(-1ULL);
+    add_timer(periodic_boot_time_task, NULL, 2);
 }
 
 void fdt_timer_init(const void* fdt){
@@ -113,7 +124,7 @@ void timer_event_handler(){
         struct timer_event* event = time_head;
         time_head = time_head->next;
 
-        add_task((task_callback_t)event->callback, event->arg, -1);
+        add_task((task_callback_t)event->callback, event->arg, 5);
 
         free(event);
     }

@@ -47,7 +47,6 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
     
     uart_init();
-    timer_init();
     plic_init();
     uart_puts_pol("[Debug] Detected UART_IRQ: ");
     uart_putd_pol(UART_IRQ);
@@ -59,5 +58,6 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
 
     shell_init(); 
 
+    timer_init();
     task_run();
 }
