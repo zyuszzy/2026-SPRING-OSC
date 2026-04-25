@@ -52,7 +52,8 @@ void fdt_timer_init(const void* fdt){
 
 // add time event into line
 void add_timer(void (*callback)(void*), void* arg, int sec){
-
+    /*if(callback == NULL)
+        return;*/
     struct timer_event* new_event = (struct timer_event*)allocate(sizeof(struct timer_event));
     if(!new_event)
         return;
@@ -63,7 +64,7 @@ void add_timer(void (*callback)(void*), void* arg, int sec){
     new_event->next = NULL;
 
     // disable global interrupt(sstatus.SIE)
-    asm volatile("csrci sstatus, 1 << 1");
+    //asm volatile("csrci sstatus, 1 << 1");
 
     if(time_head == NULL || (new_event->expire_time < time_head->expire_time)){
         new_event->next = time_head;
@@ -79,7 +80,7 @@ void add_timer(void (*callback)(void*), void* arg, int sec){
     }
 
     // enable global interrupt(sstatus.SIE)
-    asm volatile("csrsi sstatus, 1 << 1");
+    //asm volatile("csrsi sstatus, 1 << 1");
 }
 
 // execute time event's print out
@@ -123,7 +124,6 @@ void timer_event_handler(){
     while(time_head != NULL && time_head->expire_time <= now){
         struct timer_event* event = time_head;
         time_head = time_head->next;
-
         add_task((task_callback_t)event->callback, event->arg, 5);
 
         free(event);

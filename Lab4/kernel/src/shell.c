@@ -9,6 +9,52 @@
 extern boot_info_t info;
 static char input_buffer[64];
 static int input_index = 0;
+extern int current_task_priority;
+
+int priority_set[4];
+
+void p1_callback(){
+    uart_puts("P1 start\n");
+    uart_puts("P1 end\n");
+}
+
+void p3_callback(){
+    uart_puts("P3 start\n");
+    add_task(p1_callback, NULL, priority_set[0]);
+    add_timer(NULL, NULL, 0);
+    uart_puts("P3 end\n");
+}
+
+void p2_callback(){
+    uart_puts("P2 start\n");
+    add_task(p3_callback, NULL, priority_set[2]);
+    add_timer(NULL, NULL, 0);
+    uart_puts("P2 end\n");
+}
+
+void p4_callback(){
+    uart_puts("P4 start\n");
+    add_task(p2_callback, NULL, priority_set[1]);
+    add_timer(NULL, NULL, 0);
+    uart_puts("P4 end\n");
+}
+
+void test_func(){
+    int from_small_to_big = 1; // set to 0 if the task with a smaller number has a higher priority
+    if(from_small_to_big){
+        priority_set[0] = 10;
+        priority_set[1] = 20;
+        priority_set[2] = 30;
+        priority_set[3] = 40;
+    }else{
+        priority_set[0] = 40;
+        priority_set[1] = 30;
+        priority_set[2] = 20;
+        priority_set[3] = 10;
+    }
+
+    add_task(p4_callback, NULL, priority_set[3]);
+}
 
 void test_task_cb(void *arg) {
     uart_puts("[Task] Executing Priority ");
@@ -29,6 +75,7 @@ void exec(char* input){
     unsigned int size;
     void* user_entry = find_user_program((void*)info.initrd_start, filename, &size);
     if(user_entry){
+        current_task_priority = 9999;
         void* stack_page = allocate(PAGE_SIZE);        
         void* user_sp = (void*)((unsigned long)stack_page + PAGE_SIZE);
 
@@ -89,9 +136,10 @@ void execute_command(char* input_buffer){
     }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
         settimeout(input_buffer);
     }else if(strcmp(input_buffer, "test") == 0){
-        add_task(test_task_cb, "3", 3);
-        add_task(test_task_cb, "1", 1);
-        add_task(test_task_cb, "2", 2);
+        // add_task(test_task_cb, "3", 3);
+        // add_task(test_task_cb, "1", 1);
+        // add_task(test_task_cb, "2", 2);
+        add_timer(test_func, NULL, 0);
     }
     else{
         uart_puts("Unknown command: ");

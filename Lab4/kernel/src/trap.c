@@ -15,6 +15,9 @@ void do_trap(struct pt_regs *regs){
         unsigned long code = scause & 0xFFF;
         switch(code){
             case 5:     // timer interrupt
+                /*asm volatile(
+                    "li t0, (1 << 5);"
+                    "csrc sie, t0;");*/
                 timer_event_handler();
                 break;
             case 9:     // UART
@@ -30,15 +33,15 @@ void do_trap(struct pt_regs *regs){
                 uart_puts("Unknown Interrupt\n");
                 break;
         }
-        asm volatile("csrsi sstatus, 1 << 1");  // enable interrupt
+        //asm volatile("csrsi sstatus, 1 << 1");  // enable interrupt
         /*if (nested_level > 0) {
             uart_puts_pol("[Debug] Nested Interrupt! Level: ");
             uart_putd_pol(nested_level);
             uart_puts_pol("\n"); 
         }*/
         
-        task_run_single(); 
-        asm volatile("csrci sstatus, 1 << 1");  // disable interrupt
+        task_run(); 
+        //asm volatile("csrci sstatus, 1 << 1");  // disable interrupt
     }else{
         uart_puts("=== S-mode trap ===");
         uart_puts("\nscause: "); uart_hex(regs->scause);
@@ -51,7 +54,6 @@ void do_trap(struct pt_regs *regs){
         }
     }
 
-
-    nested_level--;
+    //task_run_single(); 
 
 }

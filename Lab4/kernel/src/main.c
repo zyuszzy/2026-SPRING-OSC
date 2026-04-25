@@ -59,5 +59,7 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     shell_init(); 
 
     timer_init();
-    task_run();
+    //add_timer(test_func, NULL, 0);
+    //task_run();
+    while(1);
 }

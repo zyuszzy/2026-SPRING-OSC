@@ -104,6 +104,7 @@ void uart_isr(){
             rx_buf.head = (rx_buf.head + 1) % RING_BUF_SIZE;
         }
     }
+    //*UART_REG(0x1) &= ~(0x01);
     add_task((task_callback_t)shell_task_handler, NULL, 0);
 
     // write buffer
