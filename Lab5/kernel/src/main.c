@@ -1,12 +1,15 @@
 # include "uart.h"
 # include "type.h"
 # include "string.h"
+# include "thread.h"
 # include "fdt.h"
 # include "shell.h"
 # include "timer.h"
-# include "task.h"
 # include "plic.h"
 # include "mm.h"
+
+extern void idle();
+extern void foo();
 
 boot_info_t info;
 unsigned long boot_cpu_hartid;
@@ -48,10 +51,14 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     asm volatile("csrs sie, %0" : : "r"(sie_mask));
     asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
 
-    shell_init(); 
+    struct task_struct* init_task = thread_create(idle);
+    asm volatile("mv tp, %0" : : "r"(init_task));
+    for (int i = 0; i < 3; i++) {
+        thread_create(foo);
+    }
 
-    timer_init();
-    //add_timer(test_func, NULL, 0);
-    //task_run();
-    while(1);
+    idle();
+
+    // shell_init(); 
+    // while(1);
 }

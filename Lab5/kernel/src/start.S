@@ -118,7 +118,7 @@ ret_from_exception:
     ld t5,  8 * 29(sp)
     ld t6,  8 * 30(sp)
     ld sp,  8 *  1(sp)
-    sret
+    sret         /*Based on sstatus back to status, and return to instruction which sepc pointed*/
 
 .global switch_to
 switch_to:
@@ -157,4 +157,5 @@ switch_to:
     ld s9, 88(a1)
     ld s10, 96(a1)
     ld s11, 104(a1)
+    mv tp, a1
     ret

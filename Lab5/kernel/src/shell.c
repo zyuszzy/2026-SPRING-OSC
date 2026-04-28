@@ -85,7 +85,8 @@ void execute_command(char* input_buffer){
         exec(input_buffer);
     }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
         settimeout(input_buffer);
-    }else{
+    }
+    else{
         uart_puts("Unknown command: ");
         uart_puts(input_buffer);
         uart_puts("\nUse help to get commands.\n");

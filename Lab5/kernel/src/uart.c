@@ -105,7 +105,7 @@ void uart_isr(){
         }
     }
     //*UART_REG(0x1) &= ~(0x01);
-    add_task((task_callback_t)shell_task_handler, NULL, 0);
+    //add_task((task_callback_t)shell_task_handler, NULL, 0);
 
     // write buffer
     if(*UART_REG(0x5) & LSR_TDRQ){      // if transmiter empty

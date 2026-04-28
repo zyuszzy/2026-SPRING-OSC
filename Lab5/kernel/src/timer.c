@@ -3,6 +3,7 @@
 # include "uart.h"
 # include "string.h"
 # include "fdt.h"
+# include "mm.h"
 # include "task.h"
 # include "sbi.h"
 
@@ -21,7 +22,7 @@ unsigned long get_time(){
     return n;
 }
 
-void periodic_boot_time_task(void *arg) {
+/*void periodic_boot_time_task(void *arg) {
     unsigned long now_tick = get_time();
     unsigned long boot_seconds = now_tick / CLOCK_FREQ;
 
@@ -30,11 +31,11 @@ void periodic_boot_time_task(void *arg) {
     uart_puts("\n");
 
     add_timer(periodic_boot_time_task, NULL, 2);
-}
+}*/
 
-void timer_init(){
+/*void timer_init(){
     add_timer(periodic_boot_time_task, NULL, 2);
-}
+}*/
 
 void fdt_timer_init(const void* fdt){
     int cpus_offset = fdt_path_offset(fdt, "/cpus");
@@ -43,9 +44,6 @@ void fdt_timer_init(const void* fdt){
         uint32_t* prop = (uint32_t*)fdt_getprop(fdt, cpus_offset, "timebase-frequency", &len);
         if(prop){
             CLOCK_FREQ = bswap32(*prop);
-            // uart_puts("[Kernel] DETECTED Timer Frequency: ");
-            // uart_putd(CLOCK_FREQ);
-            // uart_puts(" Hz\n");
         }
     }
 }
@@ -64,7 +62,7 @@ void add_timer(void (*callback)(void*), void* arg, int sec){
     new_event->next = NULL;
 
     // disable global interrupt(sstatus.SIE)
-    //asm volatile("csrci sstatus, 1 << 1");
+    asm volatile("csrci sstatus, 1 << 1");
 
     if(time_head == NULL || (new_event->expire_time < time_head->expire_time)){
         new_event->next = time_head;
@@ -80,7 +78,7 @@ void add_timer(void (*callback)(void*), void* arg, int sec){
     }
 
     // enable global interrupt(sstatus.SIE)
-    //asm volatile("csrsi sstatus, 1 << 1");
+    asm volatile("csrsi sstatus, 1 << 1");
 }
 
 // execute time event's print out
@@ -124,7 +122,7 @@ void timer_event_handler(){
     while(time_head != NULL && time_head->expire_time <= now){
         struct timer_event* event = time_head;
         time_head = time_head->next;
-        add_task((task_callback_t)event->callback, event->arg, 5);
+        //add_task((task_callback_t)event->callback, event->arg, 5);
 
         free(event);
     }

@@ -23,6 +23,7 @@ void uart_puts(const char* s);
 void uart_hex(unsigned long h);
 void uart_putd(unsigned int n);
 char uart_getc_raw();
+int uart_getc_nonblocking(char *ptr);
 int uart_is_readable();
 void fdt_uart_init(const void* fdt);
 
