@@ -5,6 +5,8 @@
 # include "sbi.h"
 # include "mm.h"
 
+extern void syscall_handler(struct pt_regs *regs);
+
 void do_trap(struct pt_regs *regs){
     unsigned long scause = regs->scause;
 
@@ -32,14 +34,15 @@ void do_trap(struct pt_regs *regs){
         }
         //task_run(); 
     }else{
-        uart_puts("=== S-mode trap ===");
-        uart_puts("\nscause: "); uart_hex(regs->scause);
-        uart_puts("\nsepc: "); uart_hex(regs->sepc);
-        uart_puts("\nstval: "); uart_hex(regs->stval);
-        uart_puts("\n");   
-
         if(scause == 8){     // ecall
             regs->sepc += 4;
+            syscall_handler(regs);
+        }else{
+            uart_puts("=== S-mode trap ===");
+            uart_puts("\nscause: "); uart_hex(regs->scause);
+            uart_puts("\nsepc: "); uart_hex(regs->sepc);
+            uart_puts("\nstval: "); uart_hex(regs->stval);
+            uart_puts("\n");   
         }
     }
 

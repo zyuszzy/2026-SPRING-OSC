@@ -3,6 +3,7 @@
 # include "uart.h"
 # include "initrd.h"
 # include "timer.h"
+# include "thread.h"
 # include "mm.h"
 # include "fdt.h"
 
@@ -26,25 +27,30 @@ void exec(char* input){
     void* user_entry = find_user_program((void*)info.initrd_start, filename, &size);
     if(user_entry){
         current_task_priority = 9999;
-        void* stack_page = allocate(PAGE_SIZE);        
-        void* user_sp = (void*)((unsigned long)stack_page + PAGE_SIZE);
+        struct task_struct* new_task = user_process_create(user_entry);
 
-        // save kernel sp
-        unsigned long kernel_sp;
-        asm volatile("mv %0, sp" : "=r"(kernel_sp)); 
-        asm volatile("csrw sscratch, %0" : : "r"(kernel_sp));
+        int child_pid = new_task->pid;
+        wait_task(child_pid);
 
-        // set sepc & save user sp
-        asm volatile("csrw sepc, %0" : : "r"(user_entry));
-        asm volatile("mv sp, %0" : : "r"(user_sp));
+        // void* stack_page = allocate(PAGE_SIZE);        
+        // void* user_sp = (void*)((unsigned long)stack_page + PAGE_SIZE);
 
-        // set sstatus
-        unsigned long sstatus;
-        asm volatile("csrr %0, sstatus" : "=r"(sstatus));
-        sstatus &= ~(1 << 8);   // SPP
-        sstatus |= (1 << 5);    // SPIE
-        asm volatile("csrw sstatus, %0" : : "r"(sstatus));
-        asm volatile("sret");
+        // // save kernel sp
+        // unsigned long kernel_sp;
+        // asm volatile("mv %0, sp" : "=r"(kernel_sp)); 
+        // asm volatile("csrw sscratch, %0" : : "r"(kernel_sp));
+
+        // // set sepc & save user sp
+        // asm volatile("csrw sepc, %0" : : "r"(user_entry));
+        // asm volatile("mv sp, %0" : : "r"(user_sp));
+
+        // // set sstatus
+        // unsigned long sstatus;
+        // asm volatile("csrr %0, sstatus" : "=r"(sstatus));
+        // sstatus &= ~(1 << 8);   // SPP
+        // sstatus |= (1 << 5);    // SPIE
+        // asm volatile("csrw sstatus, %0" : : "r"(sstatus));
+        // asm volatile("sret");
     }else{
         uart_puts("exec: ");
         uart_puts(input);
@@ -80,7 +86,6 @@ void execute_command(char* input_buffer){
             uart_puts("Available commands:\n");
             uart_puts("  exec <User program name>  - run user program.\n");
             uart_puts("  setTimeout <SEC> <MSG> - print MSG after SEC seconds.\n");
-            uart_puts("  test - demo test.\n");
     }else if(strncmp(input_buffer, "exec", 4) == 0){        // If exec, goto advanced judge
         exec(input_buffer);
     }else if(strncmp(input_buffer, "setTimeout", 10) == 0){
@@ -93,7 +98,7 @@ void execute_command(char* input_buffer){
     }
 }
 
-void shell_task_handler(void* data){
+/*void shell_task_handler(void* data){
 
     char input_c;
     while(uart_getc_nonblocking(&input_c)){
@@ -120,11 +125,43 @@ void shell_task_handler(void* data){
             input_buffer[input_index++] = input_c;
         }
     }
-}
+}*/
 
 void shell_init(){
     uart_puts("Starting Kernel...\n");
-    uart_puts("===== OSC LAB4 =====\n");
+    uart_puts("===== OSC LAB5 =====\n");
     uart_puts("opi-rv2> ");
     input_index = 0;
+}
+
+void shell_thread(){
+    shell_init();
+    char input_c;
+    while(1) {
+        input_c = uart_getc();
+
+        if(input_c == '\b' || input_c == 127){
+            if(input_index > 0){
+                input_index--;
+                uart_puts("\b \b");
+            }
+            continue;
+        }
+
+        uart_putc(input_c);
+
+        if(input_c == '\n'){
+            if (input_index > 0) { 
+                input_buffer[input_index] = '\0'; 
+                input_index = 0;
+                execute_command(input_buffer);
+            }
+            uart_puts("opi-rv2> ");
+            continue;
+        }
+        
+        if(input_index < 63 && input_c >= 32 && input_c <= 126){
+            input_buffer[input_index++] = input_c;
+        }
+    }
 }

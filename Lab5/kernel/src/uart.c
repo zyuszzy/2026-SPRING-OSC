@@ -1,8 +1,9 @@
 #include "uart.h"
 #include "uart_hw.h"
 #include "string.h"
+#include "thread.h"
 #include "task.h"
-#include "shell.h"
+#include "fdt.h"
 #include "type.h"
 
 /******************************************/
@@ -119,7 +120,7 @@ void uart_isr(){
 }
 
 
-char uart_getc_raw(){
+/*char uart_getc_raw(){
     char c;
     while(1){
         // ------------- Critical section -------------
@@ -137,12 +138,26 @@ char uart_getc_raw(){
         restore_irq(s);
         // ------------ Critical section End -----------
     }
-}
+}*/
 char uart_getc(){
-    char c = uart_getc_raw();
-    return (c == '\r') ? '\n' : c;
+    char c;
+    while(1) {
+        // ------------- Critical section -------------
+        unsigned long s = disable_irq();
+        if (rx_buf.head != rx_buf.tail) {
+            c = rx_buf.buffer[rx_buf.tail];
+            rx_buf.tail = (rx_buf.tail + 1) % RING_BUF_SIZE;
+            restore_irq(s);
+        // ------------ Critical section End -----------
+            return (c == '\r') ? '\n' : c;
+        }
+
+        restore_irq(s);
+        // ------------ Critical section End -----------
+        schedule();     // if read buffer empty, can exec other tasks
+    }
 }
-int uart_getc_nonblocking(char *ptr) {
+/*int uart_getc_nonblocking(char *ptr) {
     unsigned long s = disable_irq();
     int status = 0;
 
@@ -155,7 +170,7 @@ int uart_getc_nonblocking(char *ptr) {
 
     restore_irq(s);
     return status; 
-}
+}*/
 
 void uart_putc(char c){
     if(c == '\n')

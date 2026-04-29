@@ -74,8 +74,9 @@ save_context:
     move a0, sp
     call do_trap
 
+.global ret_from_exception
 ret_from_exception:
-    ld s0,  8 * 32(sp)
+    ld s0,  8 * 32(sp)      // sstatus
     andi s0, s0, (1 << 8)
     bnez s0, 1f
 

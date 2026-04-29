@@ -2,6 +2,6 @@
 #define SHELL_H
 
 void shell_init();
-void shell_task_handler(void* data);
+void shell_thread();
 
 #endif

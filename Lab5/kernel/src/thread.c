@@ -1,6 +1,7 @@
 # include "thread.h"
 # include "mm.h"
 # include "uart.h"
+# include "trap.h"
 
 static int nr_threads = 0;
 static struct task_struct* run_queue = 0;
@@ -112,10 +113,65 @@ struct task_struct* thread_create(void (*threadfn)()){
     enqueue(&run_queue, task);
     return task;
 }
+struct task_struct* user_process_create(void (*entry)()){
+    struct task_struct* task = (struct task_struct*)allocate(sizeof(struct task_struct));
+    task->pid = nr_threads++;
+    task->state = TASK_RUNNING;
+
+    // kernel stack & user stack
+    task->stack_base = (unsigned long)allocate(STACK_SIZE);     // kernel stack
+    task->kernel_sp = task->stack_base + STACK_SIZE;
+    task->user_sp = (unsigned long)allocate(STACK_SIZE) + STACK_SIZE;
+
+    // space for trap frame from kernel stack
+    struct pt_regs* regs = (struct pt_regs*)(task->kernel_sp - sizeof(struct pt_regs));
+    
+    // Init
+    for (int i = 0; i < sizeof(struct pt_regs) / 8; i++) ((unsigned long*)regs)[i] = 0;
+
+    // Trap Frame
+    regs->tp = (unsigned long)task;
+    regs->sepc = (unsigned long)entry;      // user space entry
+    regs->sp = task->user_sp;               // user stack
+    
+    unsigned long sstatus;
+    asm volatile("csrr %0, sstatus" : "=r"(sstatus));
+    sstatus &= ~(1 << 8);       // SPP = 0 (User Mode)
+    sstatus |= (1 << 5);        // SPIE = 1 (Interrupt when user mode)
+    regs->sstatus = sstatus;
+
+    // Context (for switch_to)
+    extern void ret_from_exception(); 
+    task->context.ra = (unsigned long)ret_from_exception;
+    task->context.sp = (unsigned long)regs;               
+
+    enqueue(&run_queue, task);
+    return task;
+}
 void thread_exit() {
     struct task_struct* current = get_current();
     current->state = TASK_ZOMBIE;
     schedule();
+}
+
+
+struct task_struct* find_task(int pid) {
+    struct task_struct* curr = run_queue;
+    if (!curr) return 0;
+    do {
+        if (curr->pid == pid) return curr;
+        curr = curr->next;
+    } while (curr != run_queue);
+    return 0;
+}
+void wait_task(int pid) {
+    while (1) {
+        struct task_struct* target = find_task(pid);
+        if (target == 0 || target->state == TASK_ZOMBIE) {
+            break;
+        }
+        schedule();
+    }
 }
 
 void idle() {
