@@ -36,7 +36,9 @@ void do_trap(struct pt_regs *regs){
     }else{
         if(scause == 8){     // ecall
             regs->sepc += 4;
+            asm volatile("csrsi sstatus, 1 << 1");
             syscall_handler(regs);
+            asm volatile("csrci sstatus, 1 << 1");
         }else{
             uart_puts("=== S-mode trap ===");
             uart_puts("\nscause: "); uart_hex(regs->scause);

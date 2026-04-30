@@ -16,6 +16,13 @@ static inline unsigned long disable_irq(){
 static inline void restore_irq(unsigned long sstatus){
     asm volatile("csrw sstatus, %0" : : "r"(sstatus));
 }
+void memcpy(void *dst, const void *src, unsigned long n) {
+    char *d = dst;
+    const char *s = src;
+    while (n--) *d++ = *s++;
+}
+// ===================================================================================================================
+
 
 // circular link list
 static void enqueue(struct task_struct** queue, struct task_struct* task) {
@@ -148,6 +155,42 @@ struct task_struct* user_process_create(void (*entry)()){
     enqueue(&run_queue, task);
     return task;
 }
+struct task_struct* copy_process(struct pt_regs *parent_regs){
+
+    // allocate child's task structure
+    struct task_struct* child = (struct task_struct*)allocate(sizeof(struct task_struct));
+    child->pid = nr_threads++;
+    child->state = TASK_RUNNING;
+
+    // allocate child's stack place
+    child->stack_base = (unsigned long)allocate(STACK_SIZE);    //kernel stack base
+    child->kernel_sp = child->stack_base + STACK_SIZE;
+    child->user_sp = (unsigned long)allocate(STACK_SIZE) + STACK_SIZE;
+
+    // copy parent's stack
+    struct task_struct* parent = get_current();
+    memcpy((void*)(child->user_sp - STACK_SIZE), (void*)(parent->user_sp - STACK_SIZE), STACK_SIZE);    //user stack
+    memcpy((void*)(child->kernel_sp - STACK_SIZE), (void*)(parent->kernel_sp - STACK_SIZE), STACK_SIZE);    // kernel stack
+
+    unsigned long kstack_offset = parent->kernel_sp - (unsigned long)parent_regs;
+    struct pt_regs* child_regs = (struct pt_regs*)(child->kernel_sp - kstack_offset);
+
+    // adjuct child process's para
+    child_regs->a0 = 0;     // returen value;
+
+    unsigned long usp_offset = parent->user_sp - parent_regs->sp;
+    child_regs->sp = child->user_sp - usp_offset;
+
+    child_regs->tp = (unsigned long)child;  // task structure
+    
+    // adjust child's context
+    extern void ret_from_exception();
+    child->context.ra = (unsigned long)ret_from_exception;
+    child->context.sp = (unsigned long)child_regs;
+
+    enqueue(&run_queue, child);
+    return child;
+}
 void thread_exit() {
     struct task_struct* current = get_current();
     current->state = TASK_ZOMBIE;
@@ -173,6 +216,7 @@ void wait_task(int pid) {
         schedule();
     }
 }
+
 
 void idle() {
     while (1) {
