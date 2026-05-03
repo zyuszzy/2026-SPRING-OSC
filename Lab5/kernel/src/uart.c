@@ -88,6 +88,7 @@ static inline void restore_irq(unsigned long sstatus){
 
 void uart_init(){
     *UART_REG(0x1) |= 1;     // UART_IER RX(bit 0)
+    *UART_REG(0x1) &= ~(1 << 1);
     *UART_REG(0x4) |= (1 << 3);       // Enable UART interrupt
 }
 
@@ -180,6 +181,7 @@ void uart_putc(char c){
     unsigned long s = disable_irq();
 
     while(is_buf_full(&tx_buf)){
+        *UART_REG(0x1) |= (1 << 1);
         restore_irq(s);
     // ------------ Critical section End -----------
         s = disable_irq();
@@ -195,7 +197,7 @@ void uart_putc(char c){
 
     *UART_REG(0x1) |= (1 << 1);     // open TX interrupt
     restore_irq(s);
-    // ------------ Critical section End -----------   
+    // ------------ Critical section End ----------- 
 }
 void uart_puts(const char* s){
     while (*s) uart_putc(*s++);

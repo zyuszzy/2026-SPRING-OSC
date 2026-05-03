@@ -10,6 +10,7 @@
 
 extern void idle();
 extern void foo();
+extern void video_init();
 
 boot_info_t info;
 unsigned long boot_cpu_hartid;
@@ -46,23 +47,24 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     
     uart_init();
     plic_init();
+    video_init();
+    timer_init();
 
     unsigned long sie_mask = (1 << 9) | (1 << 5);       // (1 <<9):sie.SEIE (External interrupt)  //(1 << 5):// sie.STIE(open accept timer inerrupt)
     asm volatile("csrs sie, %0" : : "r"(sie_mask));
     asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
 
     // Basic 1
-    // struct task_struct* init_task = thread_create(idle);
-    // asm volatile("mv tp, %0" : : "r"(init_task));
-    // for (int i = 0; i < 3; i++) {
-    //     thread_create(foo);
-    // }
-    // idle();
+    /*struct task_struct* init_task = thread_create(idle);
+    asm volatile("mv tp, %0" : : "r"(init_task));
+    for (int i = 0; i < 3; i++) {
+        thread_create(foo);
+    }
+    idle();*/
 
     struct task_struct* init_task = thread_create(idle);
     asm volatile("mv tp, %0" : : "r"(init_task));
     thread_create(shell_thread);
-    idle();
 
-    // while(1);
+    while(1);
 }

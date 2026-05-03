@@ -17,7 +17,8 @@ void do_trap(struct pt_regs *regs){
                 /*asm volatile(
                     "li t0, (1 << 5);"
                     "csrc sie, t0;");*/
-                timer_event_handler();
+                sbi_set_timer(get_time()+(CLOCK_FREQ / 32));
+                schedule();
                 break;
             case 9:     // UART
                 int irq = plic_claim();

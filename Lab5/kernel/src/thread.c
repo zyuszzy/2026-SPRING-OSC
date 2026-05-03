@@ -3,6 +3,7 @@
 # include "uart.h"
 # include "trap.h"
 
+static int next_pid = 0;
 static int nr_threads = 0;
 static struct task_struct* run_queue = 0;
 extern void switch_to(struct task_struct* prev, struct task_struct* next);
@@ -56,7 +57,7 @@ void schedule() {
     }
     
     if(next != current){
-        asm volatile("move tp, %0" : : "r"(next));
+        //asm volatile("move tp, %0" : : "r"(next));
         switch_to(current, next);
     }
 }
@@ -94,7 +95,7 @@ void kill_zombies(){
                 free((void*)zombie->stack_base);
             }
             free(zombie);
-             nr_threads--;
+            nr_threads--;
 
             if(run_queue == 0)
                 break;
@@ -110,7 +111,8 @@ void kill_zombies(){
 
 struct task_struct* thread_create(void (*threadfn)()){
     struct task_struct* task = (struct task_struct*)allocate(sizeof(struct task_struct));
-    task->pid = nr_threads++;
+    task->pid = next_pid++; 
+    nr_threads++;
     task->state = TASK_RUNNING;
     
     task->stack_base = (unsigned long)allocate(STACK_SIZE);
@@ -122,7 +124,8 @@ struct task_struct* thread_create(void (*threadfn)()){
 }
 struct task_struct* user_process_create(void (*entry)()){
     struct task_struct* task = (struct task_struct*)allocate(sizeof(struct task_struct));
-    task->pid = nr_threads++;
+    task->pid = next_pid++; 
+    nr_threads++;
     task->state = TASK_RUNNING;
 
     // kernel stack & user stack
@@ -159,7 +162,8 @@ struct task_struct* copy_process(struct pt_regs *parent_regs){
 
     // allocate child's task structure
     struct task_struct* child = (struct task_struct*)allocate(sizeof(struct task_struct));
-    child->pid = nr_threads++;
+    child->pid = next_pid++;
+    nr_threads++;
     child->state = TASK_RUNNING;
 
     // allocate child's stack place
@@ -226,6 +230,14 @@ void idle() {
 }
 void foo() {
     for (int i = 0; i < 5; i++) {
+        struct task_struct* temp = get_current();
+        do{
+            uart_putd(temp->pid);
+            uart_puts("->");
+            temp = temp->next;
+        }while(temp != get_current());
+        uart_puts("\n");
+
         uart_puts("Thread id: ");
         uart_putd(get_current()->pid);
         uart_puts(" ");

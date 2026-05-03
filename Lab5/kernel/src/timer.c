@@ -5,6 +5,7 @@
 # include "fdt.h"
 # include "mm.h"
 # include "task.h"
+# include "thread.h"
 # include "sbi.h"
 
 unsigned long CLOCK_FREQ;
@@ -33,9 +34,11 @@ unsigned long get_time(){
     add_timer(periodic_boot_time_task, NULL, 2);
 }*/
 
-/*void timer_init(){
-    add_timer(periodic_boot_time_task, NULL, 2);
-}*/
+void timer_init(){
+    unsigned long now = get_time();
+    unsigned long next_tick = now + (CLOCK_FREQ / 32);
+    sbi_set_timer(next_tick);
+}
 
 void fdt_timer_init(const void* fdt){
     int cpus_offset = fdt_path_offset(fdt, "/cpus");
@@ -119,17 +122,18 @@ void do_setTimeout(char* sec_ptr, char* msg_ptr){
 void timer_event_handler(){
     unsigned long now = get_time();
 
-    while(time_head != NULL && time_head->expire_time <= now){
+    /*while(time_head != NULL && time_head->expire_time <= now){
         struct timer_event* event = time_head;
         time_head = time_head->next;
         //add_task((task_callback_t)event->callback, event->arg, 5);
-
+        if(event->callback){
+            event->callback(event->arg);
+        }
         free(event);
-    }
+    }*/
 
-    if(time_head != NULL){
-        sbi_set_timer(time_head->expire_time);
-    }else{
-        sbi_set_timer(-1ULL);
-    }
+    unsigned long next_tick = now + (CLOCK_FREQ / 32);
+
+    sbi_set_timer(next_tick);
+    schedule();
 }

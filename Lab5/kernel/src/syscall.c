@@ -1,6 +1,7 @@
 #include "trap.h"
 #include "thread.h"
 #include "initrd.h"
+#include "timer.h"
 #include "fdt.h"
 #include "mm.h"
 #include "uart.h"
@@ -13,9 +14,11 @@
 #define SYS_WAITPID    5
 #define SYS_EXIT       6
 #define SYS_STOP       7
+#define SYS_DISPLAY    8
+#define SYS_USLEEP     9
 
 extern boot_info_t info;
-
+extern void video_bmp_display(unsigned int* bmp_image, int width, int height);
 static inline unsigned long disable_irq(){
     unsigned long sstatus;
     asm volatile("csrr %0, sstatus" : "=r"(sstatus));
@@ -25,6 +28,7 @@ static inline unsigned long disable_irq(){
 static inline void restore_irq(unsigned long sstatus){
     asm volatile("csrw sstatus, %0" : : "r"(sstatus));
 }
+
 
 // 0: long getpid()
 void sys_getpid(struct pt_regs *regs){
@@ -83,11 +87,11 @@ void sys_waitpid(struct pt_regs *regs){
     regs->a0 = target_pid;      // return end pid
 }
 // 6: void exit(int status)
-void sys_exit(struct pt_regs *regs) {
+void sys_exit(struct pt_regs *regs){
     thread_exit(); 
 }
 // 7: int stop(long pid) 
-void sys_stop(struct pt_regs *regs) {
+void sys_stop(struct pt_regs *regs){
     long target_pid = regs->a0;
     struct task_struct* target = find_task(target_pid);
     
@@ -98,6 +102,26 @@ void sys_stop(struct pt_regs *regs) {
         regs->a0 = -1; 
     }
 }
+// 8: void display(unsigned int *bmp_image, unsigned int width, unsigned int height)
+void sys_display(struct pt_regs *regs){
+    unsigned int* img = (unsigned int*)regs->a0;
+    int w = (int)regs->a1;
+    int h = (int)regs->a2;
+    video_bmp_display(img, w, h);
+}
+// 9: int usleep(unsigned int usec)
+void sys_usleep(struct pt_regs *regs){
+    unsigned int usec = (unsigned int)regs->a0;
+    unsigned long start = get_time();
+    unsigned long wait_ticks = (unsigned long)usec * (CLOCK_FREQ / 1000000);
+    
+    while(get_time() - start < wait_ticks){
+        schedule();
+    }
+    regs->a0 = 0;
+}
+
+
 
 void syscall_handler(struct pt_regs *regs){
     unsigned long syscall_num = regs->a7;
@@ -119,6 +143,8 @@ void syscall_handler(struct pt_regs *regs){
         case SYS_WAITPID: sys_waitpid(regs); break;
         case SYS_EXIT: sys_exit(regs); break;
         case SYS_STOP: sys_stop(regs); break;
+        case SYS_DISPLAY: sys_display(regs); break;
+        case SYS_USLEEP: sys_usleep(regs); break;
         default:
             uart_puts("Unknown syscall\n");
             break;

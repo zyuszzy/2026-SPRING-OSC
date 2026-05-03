@@ -20,9 +20,12 @@ KERN_DIR   = kernel
 # -MMD 會產生 .d 檔來追蹤標頭檔依賴
 CFLAGS = -mcmodel=medany -ffreestanding -nostdlib -g -Wall -MMD
 INCLUDES = -I$(SHARED_DIR)/include -I$(KERN_DIR)/include
+QEMU_OPTS = -M virt -m 256M -kernel bootloader.bin -initrd initramfs.cpio -serial pty
+
 
 ifeq ($(PLATFORM), QEMU)
     CFLAGS += -DUSE_QEMU
+	QEMU_OPTS += -device ramfb
 endif
 
 # ------------------------------------------------------------
@@ -99,8 +102,7 @@ $(SHARED_DIR)/src/%.o: $(SHARED_DIR)/src/%.c
 # ------------------------------------------------------------
 
 run: all
-	$(QEMU) -M virt -m 256M -kernel bootloader.bin -initrd initramfs.cpio -display none -serial pty
-
+	$(QEMU) $(QEMU_OPTS)
 clean:
 	rm -f $(BOOT_DIR)/*.o $(BOOT_DIR)/*.d
 	rm -f $(KERN_DIR)/src/*.o $(KERN_DIR)/src/*.d

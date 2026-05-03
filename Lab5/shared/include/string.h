@@ -6,6 +6,10 @@
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, int n);
 int strlen(const char *s);
+static inline uint16_t bswap16(uint16_t x){
+    return ((x & 0x00ff) << 8) | 
+           ((x & 0xff00) >> 8);
+}
 static inline uint32_t bswap32(uint32_t x){
     return ((x & 0x000000ff) << 24) |
            ((x & 0x0000ff00) << 8)  |
