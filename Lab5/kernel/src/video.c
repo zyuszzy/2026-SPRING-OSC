@@ -18,8 +18,8 @@ static void* memcpy(void* dst, const void* src, int n) {
     #define FB_BASE 0x7f700000
 #endif
 
-#define FB_WIDTH  720
-#define FB_HEIGHT 480
+#define FB_WIDTH  1920
+#define FB_HEIGHT 1080
 #define FB_BPP    4
 #define XRGB8888  875713112
 
