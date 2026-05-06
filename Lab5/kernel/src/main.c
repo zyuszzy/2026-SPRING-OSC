@@ -55,8 +55,8 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     asm volatile("csrsi sstatus, 1 << 1");      // ssatatus.SIE (Global inerrupt)
 
     // Basic 1
-    /*struct task_struct* init_task = thread_create(idle);
-    asm volatile("mv tp, %0" : : "r"(init_task));
+    /*struct task_struct* init_task0 = thread_create(idle);
+    asm volatile("mv tp, %0" : : "r"(init_task0));
     for (int i = 0; i < 3; i++) {
         thread_create(foo);
     }
@@ -65,6 +65,6 @@ void start_kernel(unsigned long hartid, unsigned long dtb_ptr){
     struct task_struct* init_task = thread_create(idle);
     asm volatile("mv tp, %0" : : "r"(init_task));
     thread_create(shell_thread);
-
-    while(1);
+    idle();
+    //while(1);
 }

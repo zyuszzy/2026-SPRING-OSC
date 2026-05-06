@@ -16,9 +16,14 @@
 #define SYS_STOP       7
 #define SYS_DISPLAY    8
 #define SYS_USLEEP     9
+#define SYS_SIGNAL     10
+#define SYS_SIGRETURN  11
+#define SYS_KILL       12
 
 extern boot_info_t info;
+extern struct task_struct* zombie_queue;
 extern void video_bmp_display(unsigned int* bmp_image, int width, int height);
+extern void dequeue(struct task_struct* task);
 static inline unsigned long disable_irq(){
     unsigned long sstatus;
     asm volatile("csrr %0, sstatus" : "=r"(sstatus));
@@ -57,13 +62,17 @@ void sys_uart_write(struct pt_regs *regs){
 }
 // 3: int exec(const char *path)
 void sys_exec(struct pt_regs *regs){
+    struct task_struct* curr = get_current();
     const char* path = (const char*)regs->a0;
     unsigned int size;
     void* user_entry = find_user_program((void*)info.initrd_start, path, &size);
     
     if(user_entry){
+        if(curr->user_stack_base)   // free original stack
+            free((void*)curr->user_stack_base);
+        curr->user_stack_base = (unsigned long)allocate(STACK_SIZE);
         regs->sepc = (unsigned long)user_entry;
-        regs->sp = (unsigned long)allocate(STACK_SIZE) + STACK_SIZE; 
+        regs->sp = curr->user_stack_base + STACK_SIZE; 
         regs->a0 = 0;
     }else{
         regs->a0 = -1;
@@ -93,14 +102,25 @@ void sys_exit(struct pt_regs *regs){
 // 7: int stop(long pid) 
 void sys_stop(struct pt_regs *regs){
     long target_pid = regs->a0;
+    unsigned long s = disable_irq();
     struct task_struct* target = find_task(target_pid);
+    struct task_struct* current = get_current();
     
     if(target){
+        dequeue(target);
         target->state = TASK_ZOMBIE;
+        target->next = zombie_queue;
+        zombie_queue = target;
         regs->a0 = 0;
+        if (target == current) {
+            restore_irq(s);
+            schedule();
+            return;
+        }
     }else{
         regs->a0 = -1; 
     }
+
 }
 // 8: void display(unsigned int *bmp_image, unsigned int width, unsigned int height)
 void sys_display(struct pt_regs *regs){
@@ -119,6 +139,56 @@ void sys_usleep(struct pt_regs *regs){
         schedule();
     }
     regs->a0 = 0;
+}
+// 10: long signal(int signum, void (*handler)())
+void sys_signal(struct pt_regs *regs) {
+    int signum = (int)regs->a0;
+    void (*handler)() = (void (*)())regs->a1;
+    struct task_struct* current = get_current();
+
+    if (signum >= 0 && signum < MAX_SIG) {
+        current->sig_handlers[signum] = handler;
+        regs->a0 = 0;
+    } else {
+        regs->a0 = -1;
+    }
+}
+// 11: void sigreturn()
+void sys_sigreturn(struct pt_regs *regs) {
+    struct task_struct* current = get_current();
+
+    if (current->saved_regs) {
+        memcpy(regs, current->saved_regs, sizeof(struct pt_regs));  // restore trap frame
+
+        free(current->saved_regs);
+        current->saved_regs = NULL;
+
+        if (current->sig_stack_base) {
+            free((void*)current->sig_stack_base);
+            current->sig_stack_base = 0;
+        }
+
+        uart_puts("sigreturn called\n");
+    }
+}
+// 12: int kill(int pid, int signum)
+void sys_kill(struct pt_regs *regs) {
+    int pid = (int)regs->a0;
+    int signum = (int)regs->a1;
+
+    if (signum < 0 || signum >= MAX_SIG) {
+        regs->a0 = -1;
+        return;
+    }
+
+    struct task_struct* target = find_task(pid);
+
+    if (target) {
+        target->sig_pending |= (1 << signum);
+        regs->a0 = 0;
+    } else {
+        regs->a0 = -1; 
+    }
 }
 
 
@@ -145,6 +215,9 @@ void syscall_handler(struct pt_regs *regs){
         case SYS_STOP: sys_stop(regs); break;
         case SYS_DISPLAY: sys_display(regs); break;
         case SYS_USLEEP: sys_usleep(regs); break;
+        case SYS_SIGNAL: sys_signal(regs); break;
+        case SYS_SIGRETURN: sys_sigreturn(regs); break;
+        case SYS_KILL: sys_kill(regs); break;
         default:
             uart_puts("Unknown syscall\n");
             break;

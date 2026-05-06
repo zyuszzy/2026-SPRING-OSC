@@ -1,70 +1,26 @@
 
 bootloader > load
 Please run the Python script for loading kernel...
-Loading kernel, the Kernel Size: 0x0000000000005130
+Loading kernel, the Kernel Size: 0x0000000000005758
 Kernel loaded successfully! Jump to kernel 0x82000000 ...
-3->2->1->0->
-Thread id: 3 0
-2->1->0->3->
-Thread id: 2 0
-1->0->3->2->
-Thread id: 1 0
-2->1->0->3->
-Thread id: 2 1
-1->0->3->2->
-Thread id: 1 1
-2->1->0->3->
-Thread id: 2 2
-1->0->3->2->
-Thread id: 1 2
-2->1->0->3->
-Thread id: 2 3
-1->0->3->2->
-Thread id: 1 3
-2->1->0->3->
-Thread id: 2 4
-1->0->3->2->
-Thread id: 1 4
-3->0->
-Thread id: 3 1
-3->0->
-Thread id: 3 2
-3->0->
-Thread id: 3 3
-3->0->
-Thread id: 3 4
-
-bootloader > load
-Please run the Python script for loading kernel...
-Loading kernel, the Kernel Size: 0x0000000000005130
-Kernel loaded successfully! Jump to kernel 0x82000000 ...
-3->2->1->0->
-Thread id: 3 0
-2->1->0->3->
-Thread id: 2 0
-1->0->3->2->
-Thread id: 1 0
-3->2->1->0->
-Thread id: 3 1
-2->1->0->3->
-Thread id: 2 1
-1->0->3->2->
-Thread id: 1 1
-3->2->1->0->
-Thread id: 3 2
-2->1->0->3->
-Thread id: 2 2
-1->0->3->2->
-Thread id: 1 2
-3->2->1->0->
-Thread id: 3 3
-2->1->0->3->
-Thread id: 2 3
-1->0->3->2->
-Thread id: 1 3
-3->2->1->0->
-Thread id: 3 4
-2->1->0->3->
-Thread id: 2 4
-1->0->3->2->
-Thread id: 1 4
+Starting Kernel...
+===== OSC LAB5 =====
+opi-rv2> exec osctest.bin
+process starts (pid = 2)
+OSC test user program
+$ fork
+childI am the child process
+ pid: 3
+$ exi   f stop 3
+$ exec oscts  test.bin
+process starts (pid = 4)
+OSC test user program
+$ ex  fork
+child pid: 5
+$ I am the child process
+stop 5
+$ exit
+$ pid
+pid is 2
+$ exit
+opi-rv2> 

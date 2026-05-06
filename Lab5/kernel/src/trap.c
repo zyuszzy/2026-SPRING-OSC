@@ -4,8 +4,58 @@
 # include "plic.h"
 # include "sbi.h"
 # include "mm.h"
+# include "thread.h"
 
 extern void syscall_handler(struct pt_regs *regs);
+
+void handle_signal(struct pt_regs *regs) {
+    struct task_struct *curr = get_current();
+    
+    // return to kernel mode
+    if ((regs->sstatus & (1 << 8)) != 0) return;
+
+    if (curr->saved_regs != 0) return;
+
+    if (curr->sig_pending == 0) return;
+
+
+    for (int signum = 0; signum < MAX_SIG; signum++) {
+        if (curr->sig_pending & (1 << signum)) {
+            
+            void (*handler)() = curr->sig_handlers[signum];
+            
+            // clean signal pending
+            curr->sig_pending &= ~(1 << signum);
+
+            if (handler) {
+                // haved register handler, jump to handler
+
+                // backup trape frame
+                curr->saved_regs = (struct pt_regs *)allocate(sizeof(struct pt_regs));
+                memcpy(curr->saved_regs, regs, sizeof(struct pt_regs));
+
+                // signal stack
+                curr->sig_stack_base = (unsigned long)allocate(STACK_SIZE);
+                
+                // Trampoline (stack top)
+                uint32_t *tramp = (uint32_t *)curr->sig_stack_base;
+                tramp[0] = 0x00b00893;      // li a7, 11(sigreturn)
+                tramp[1] = 0x00000073;      // ecall
+
+                // go to handler
+                regs->sepc = (unsigned long)handler;
+                regs->ra = curr->sig_stack_base;
+                regs->sp = curr->sig_stack_base + STACK_SIZE; 
+
+                return; 
+            } else {
+                uart_puts("Signal received but no handler, exiting...\n");
+                thread_exit(); 
+                return;
+            }
+        }
+    }
+}
 
 void do_trap(struct pt_regs *regs){
     unsigned long scause = regs->scause;
@@ -49,4 +99,5 @@ void do_trap(struct pt_regs *regs){
         }
     }
 
+    handle_signal(regs);
 }
